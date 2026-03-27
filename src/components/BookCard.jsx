@@ -1,6 +1,17 @@
-function BookCard({ book, onBorrow }) {
+
+
+function BookCard({ book, onBorrow, onBookmark, myBooks=[] }) {
+  const isBookmarked = myBooks.some((b) => b._id === book._id);
   return (
     <div className="bg-white border border-[#d9d9d9] rounded-lg shadow-md p-4 flex flex-col gap-4 w-[240px] hover:shadow-lg transition-shadow">
+       {/* Bookmark Icon */}
+      <div className="flex justify-end">
+        {onBookmark && (
+          <button onClick={() => onBookmark(book)}>
+            {isBookmarked ? "🔖" : "📑"}
+          </button>
+        )}
+      </div>
       {/* Book Image */}
       <div className="h-[247px] relative w-full overflow-hidden rounded-md">
         <img 
@@ -36,6 +47,9 @@ function BookCard({ book, onBorrow }) {
             {book.available ? "Borrow" : "Not Available"}
           </p>
         </button>
+
+        {/*add myBooks*/}
+        
       </div>
     </div>
   );

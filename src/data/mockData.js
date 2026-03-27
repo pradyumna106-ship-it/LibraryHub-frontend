@@ -1,79 +1,80 @@
 // Mock data for the library management system
 
-export const books = [
-  {
-    id: 1,
-    title: "Harry Potter and the Cursed Child",
-    author: "J.K. Rowling",
-    category: "Fiction",
-    price: "$10",
-    available: true,
-    image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
-  },
-  {
-    id: 2,
-    title: "The Hobbit",
-    author: "J.R.R. Tolkien",
-    category: "Fantasy",
-    price: "$12",
-    available: true,
-    image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
-  },
-  {
-    id: 3,
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
-    category: "Classic",
-    price: "$8",
-    available: false,
-    image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
-  },
-  {
-    id: 4,
-    title: "1984",
-    author: "George Orwell",
-    category: "Dystopian",
-    price: "$9",
-    available: true,
-    image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
-  },
-  {
-    id: 5,
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    category: "Classic",
-    price: "$11",
-    available: true,
-    image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
-  },
-  {
-    id: 6,
-    title: "Pride and Prejudice",
-    author: "Jane Austen",
-    category: "Romance",
-    price: "$10",
-    available: false,
-    image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
-  },
-  {
-    id: 7,
-    title: "The Catcher in the Rye",
-    author: "J.D. Salinger",
-    category: "Fiction",
-    price: "$13",
-    available: true,
-    image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
-  },
-  {
-    id: 8,
-    title: "Lord of the Flies",
-    author: "William Golding",
-    category: "Fiction",
-    price: "$7",
-    available: true,
-    image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
-  }
-];
+
+// export const books = [
+//   {
+//     id: 1,
+//     title: "Harry Potter and the Cursed Child",
+//     author: "J.K. Rowling",
+//     category: "Fiction",
+//     price: "$10",
+//     available: true,
+//     image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
+//   },
+//   {
+//     id: 2,
+//     title: "The Hobbit",
+//     author: "J.R.R. Tolkien",
+//     category: "Fantasy",
+//     price: "$12",
+//     available: true,
+//     image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
+//   },
+//   {
+//     id: 3,
+//     title: "To Kill a Mockingbird",
+//     author: "Harper Lee",
+//     category: "Classic",
+//     price: "$8",
+//     available: false,
+//     image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
+//   },
+//   {
+//     id: 4,
+//     title: "1984",
+//     author: "George Orwell",
+//     category: "Dystopian",
+//     price: "$9",
+//     available: true,
+//     image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
+//   },
+//   {
+//     id: 5,
+//     title: "The Great Gatsby",
+//     author: "F. Scott Fitzgerald",
+//     category: "Classic",
+//     price: "$11",
+//     available: true,
+//     image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
+//   },
+//   {
+//     id: 6,
+//     title: "Pride and Prejudice",
+//     author: "Jane Austen",
+//     category: "Romance",
+//     price: "$10",
+//     available: false,
+//     image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
+//   },
+//   {
+//     id: 7,
+//     title: "The Catcher in the Rye",
+//     author: "J.D. Salinger",
+//     category: "Fiction",
+//     price: "$13",
+//     available: true,
+//     image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
+//   },
+//   {
+//     id: 8,
+//     title: "Lord of the Flies",
+//     author: "William Golding",
+//     category: "Fiction",
+//     price: "$7",
+//     available: true,
+//     image: "figma:asset/31512d522c1d6eef2bb94026857479b1cf9d1b38.png"
+//   }
+// ];
 
 export const borrowedBooks = [
   {

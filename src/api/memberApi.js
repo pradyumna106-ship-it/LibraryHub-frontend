@@ -16,6 +16,13 @@ export const getMembers = () =>
 export const getMemberById = (id) =>
   API.get(`/member/fetchById/${id}`);
 
+export const getMemberByEmail = (email) =>
+  API.get(`/member/fetchByEmail/${email}`);
+
 // Delete
 export const deleteMember = (id) =>
   API.delete(`/member/deleteById/${id}`);
+
+export const getMyBooks = (id) => API.get(`/member/getMyBooks/${id}`)
+
+export const addMyBooks = (id,bookId) => API.put(`/member/addMyBooks/${id}`,{bookId})

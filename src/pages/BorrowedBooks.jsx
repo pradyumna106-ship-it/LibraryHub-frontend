@@ -1,6 +1,18 @@
-import { borrowedBooks } from "../data/mockData.js";
+//import { borrowedBooks } from "../data/mockData.js";
 
+import { useEffect, useState } from "react";
+import { borrowedForOneMember } from "../api/transactionApi.js";
 function BorrowedBooks() {
+  const memberId = 	'69c28ca4b067e752b9d87135'
+  const [borrowedBooks, setBorrowedBooks] = useState([]);
+  useEffect(() => {
+    async function loadBorrowedBooks() {
+      const res = await borrowedForOneMember(memberId);
+      console.log(res);
+      setBorrowedBooks(res.data.data);
+    }
+    loadBorrowedBooks()
+  });
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Borrowed Books</h1>

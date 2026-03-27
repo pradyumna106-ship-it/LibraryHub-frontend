@@ -1,4 +1,5 @@
 import API from "./base";
+
 // Add Transaction
 export const addTransaction = (data) =>
   API.post("/transaction/add", data);
@@ -19,18 +20,18 @@ export const getTransactionById = (id) =>
 export const deleteTransaction = (id) =>
   API.delete(`/transaction/deleteById/${id}`);
 
-// Borrowed by Member
+// Borrow Count
 export const borrowedForOneMember = (memberId) =>
   API.get(`/transaction/borrowByMemberId/${memberId}`);
 
-// Borrowed All
-export const borrowedForAll = () =>
-  API.get("/transaction/borrowAll");
+// History
+export const getHistoryByMember = (memberId) =>
+  API.get(`/transaction/historyByMemberId/${memberId}`);
 
-// Active Loans
-export const activeLoansOnePerson = (memberId) =>
-  API.get(`/transaction/activeLoansByMemberId/${memberId}`);
-
-// Full Details
-export const borrowedBooksWithDetails = (memberId) =>
+// Borrowed Books Details
+export const getBorrowedBooksDetails = (memberId) =>
   API.get(`/transaction/borrowDetailsByMemberId/${memberId}`);
+
+// Dashboard Stats
+export const getDashboardStats = (memberId) =>
+  API.get(`/transaction/dashboardStats/${memberId}`);

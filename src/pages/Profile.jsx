@@ -1,21 +1,66 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { User, Mail, Phone, MapPin, Calendar, BookOpen, DollarSign, Edit2, Save, X } from "lucide-react";
-import { userProfile as initialProfile } from "../data/mockData.js";
+//import { userProfile as initialProfile } from "../data/mockData.js";
+import { getMemberByEmail,updateMember } from "../api/memberApi";
 
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState(initialProfile);
-  const [editedProfile, setEditedProfile] = useState(initialProfile);
+  const [userProfile, setUserProfile] = useState({});
+  const [profile, setProfile] = useState({});
+  const [editedProfile, setEditedProfile] = useState({});
+  
+  useEffect(() => {
+  const loadProfile = async () => {
+    const res = await getMemberByEmail("john.doe@example.com");
+    console.table(res.data);
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setEditedProfile(profile);
-  };
+    const data = res.data?.data || res.data; // handle both cases
 
-  const handleSave = () => {
-    setProfile(editedProfile);
-    setIsEditing(false);
-  };
+    setUserProfile(data);
+    setProfile(data);          // ✅ IMPORTANT
+    setEditedProfile(data);    // ✅ IMPORTANT
+      };
+
+      loadProfile();
+    }, []);
+      const handleEdit = () => {
+      setIsEditing(true);
+      setEditedProfile(profile); // ok AFTER fix above
+    }
+    const departments = [
+      "Engineering",
+      "Computer Science (CS)",
+      "Electronics (EC)",
+      "Electronics & Communication (ECE)",
+      "Mechanical",
+      "Civil",
+      "MBBS",
+      "BDS",
+      "Pharmacy",
+      "MBA",
+      "B.Com",
+      "Arts"
+    ];
+  const handleSave = async () => {
+  try {
+    const res = await updateMember(profile._id || profile.id, editedProfile);
+
+    if (res.success) {
+      const updatedData = res.data?.data || res.data;
+
+      setProfile(updatedData);        // ✅ update UI
+      setEditedProfile(updatedData);  // ✅ sync edit state
+      setIsEditing(false);
+
+      alert("Profile updated successfully ✅");
+    } else {
+      alert(res.message || "Update failed ❌");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Something went wrong ❌");
+  }
+};
 
   const handleCancel = () => {
     setEditedProfile(profile);
@@ -188,10 +233,91 @@ function Profile() {
                 ) : (
                   <p className="text-gray-900 text-lg">{currentProfile.address}</p>
                 )}
+                
               </div>
+              {/* Department*/}
+              <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Department
+              </label>
+
+              {isEditing ? (
+                <select
+                  value={currentProfile.dept || ""}
+                  onChange={(e) => handleChange("dept", e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  <option value="">Select Department</option>
+                  
+                  {departments.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-gray-900 text-lg">
+                  {currentProfile.dept || "Not Assigned"}
+                </p>
+              )}
+            </div>
+              {/* Member Type*/}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Member Type
+                </label>
+                {isEditing ? (
+                  <select
+                    value={currentProfile.memberType || ""}
+                    onChange={(e) => handleChange("memberType", e.target.value)}
+                    className="input"
+                  >
+                    <option value="Student">Student</option>
+                    <option value="Faculty">Faculty</option>
+                  </select>
+                ) : (
+                  <p className="text-gray-900 text-lg">{currentProfile.memberType}</p>
+                )}
+              </div>
+              {/* Status */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Status
+                </label>
+                {isEditing ? (
+                  <select
+                    value={currentProfile.status || ""}
+                    onChange={(e) => handleChange("status", e.target.value)}
+                    className="input"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                ) : (
+                  <p className="text-gray-900 text-lg">{currentProfile.status}</p>
+                )}
+              </div>
+              {/* createdAt*/}
+              <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Created At
+                  </label>
+                  <p className="text-gray-900 text-lg">
+                    {new Date(currentProfile.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                {/* updateAt */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
+              Last Updated
+            </label>
+            <p className="text-gray-900 text-lg">
+              {new Date(currentProfile.updatedAt).toLocaleDateString()}
+            </p>
+          </div>
             </div>
           </div>
-
+          
           {/* Change Password Section */}
           {isEditing && (
             <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mt-6">

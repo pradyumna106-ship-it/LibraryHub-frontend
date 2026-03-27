@@ -1,6 +1,40 @@
-import { dashboardStats, borrowedBooks } from "../data/mockData.js";
+import { useState,useEffect } from "react";
+import { borrowedForOneMember,getDashboardStats } from "../api/transactionApi.js";
 
 function Dashboard() {
+    const [borrowedBooks, setBorrowedBooks] = useState([]);
+    const [dashboardStats, setDashboardStats] = useState(0);
+    useEffect(() => {
+    async function loadDashboard() {
+      try {
+        // const user = JSON.parse(localStorage.getItem("user"));
+        const memberId = 	'69c28ca4b067e752b9d87135';
+
+        if (!memberId) {
+          console.error("No memberId found");
+          return;
+        }
+
+        // 🔥 Run both APIs in parallel
+        const [borrowRes, statsRes] = await Promise.all([
+          borrowedForOneMember(memberId),
+          getDashboardStats(memberId)
+        ]);
+
+        console.log("Borrowed:", borrowRes);
+        console.log("Stats:", statsRes);
+
+        // ✅ Set data
+        setBorrowedBooks(borrowRes.data.data);
+        setDashboardStats(statsRes.data);
+
+      } catch (error) {
+        console.error("Error loading dashboard:", error);
+      }
+    }
+
+    loadDashboard();
+  }, []);
   return (
     <div className="p-8">
       {/* Stats Cards */}

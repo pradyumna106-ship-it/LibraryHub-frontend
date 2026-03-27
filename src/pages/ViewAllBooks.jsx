@@ -1,23 +1,69 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import BookCard from "../components/BookCard.jsx";
-import { books as allBooks } from "../data/mockData.js";
+import { addMyBooks, getMyBooks } from "../api/memberApi.js";
+import { getBooks } from "../api/bookAPI.js";
 
 function ViewAllBooks() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedAuthor, setSelectedAuthor] = useState("All");
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
-
+  const [allBooks,setAllBooks] = useState([]);
+  const [myBooks, setMyBooks] = useState([]);
   const categories = ["All", ...new Set(allBooks.map(book => book.category))];
   const authors = ["All", ...new Set(allBooks.map(book => book.author))];
-
   const filteredBooks = allBooks.filter(book => {
     if (selectedCategory !== "All" && book.category !== selectedCategory) return false;
     if (selectedAuthor !== "All" && book.author !== selectedAuthor) return false;
     if (showAvailableOnly && !book.available) return false;
     return true;
   });
+    const id = "69c28ca4b067e752b9d87135"
+    useEffect(() => {
+    const fetchBooks = async () => {
+      const res = await getBooks();
+      console.log(res);
+      console.table(res.data)
+      if (res.status === 200) {
+        setAllBooks(res.data); // ⚠️ make sure it's array
+      } else {
+        console.error(res.data.message);
+      }
+    };
+    fetchBooks();
+  }, []);
+  useEffect(() => {
+  const fetchMyBooks = async () => {
+    const res = await getMyBooks(id);
 
+    if (res.status === 200) {
+      setMyBooks(res.data); // ✅ populated books
+    }
+  };
+
+  fetchMyBooks();
+}, []);
+  const handleBookmark = async (book) => {
+    try {
+      const exists = myBooks.some((b) => b._id === book._id);
+      let updatedBooks;
+      if (exists) {
+        updatedBooks = myBooks.filter((b) => b._id !== book._id);
+      } else {
+        updatedBooks = [...myBooks, book];
+      }
+      // ✅ Update UI
+      setMyBooks(updatedBooks);
+      // ✅ Send ONLY single bookId
+      const bookId = book._id
+      console.log("Sending bookId:", bookId);
+      
+      const res = await addMyBooks(id, bookId);
+      console.log(res.data)
+    } catch (error) {
+      console.error("Bookmark error:", error);
+    }
+  };
   const handleBorrow = (book) => {
     alert(`Borrowing: ${book.title}`);
   };
@@ -73,7 +119,13 @@ function ViewAllBooks() {
       {/* Books Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredBooks.map(book => (
-          <BookCard key={book.id} book={book} onBorrow={handleBorrow} />
+          <BookCard
+            key={book.id}
+            book={book}
+            onBorrow={handleBorrow}
+            onBookmark={handleBookmark}
+            myBooks={myBooks}
+          />
         ))}
       </div>
 
