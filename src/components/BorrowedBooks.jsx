@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { borrowedForOneMember } from "../api/transactionApi.js";
 function BorrowedBooks() {
-  const memberId = 	'69c28ca4b067e752b9d87135'
+  const memberId = 	localStorage.getItem('id')||'69c28ca4b067e752b9d87135'
   const [borrowedBooks, setBorrowedBooks] = useState([]);
   useEffect(() => {
     async function loadBorrowedBooks() {

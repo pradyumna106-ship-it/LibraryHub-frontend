@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getHistoryByMember } from "../api/transactionApi.js";
 function History() {
   const [historyData, setHistoryData] = useState([]);
-  const memberId = 	'69c28ca4b067e752b9d87135';
+  const memberId = 	localStorage.getItem('id')||'69c28ca4b067e752b9d87135';
   useEffect(() => {
     async function loadHistory() {
       const res = await getHistoryByMember(memberId);

@@ -1,6 +1,7 @@
 import { User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { adminLogin, memberLogin } from "../api/base";
 
 function LogIn() {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ function LogIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const isAdmin = role === "admin";
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     console.log(role, email, password);
@@ -22,9 +23,27 @@ function LogIn() {
 
       // 🚀 Navigate based on role
     if (isAdmin) {
-      navigate("/admin-dashboard");
+        const res = await adminLogin({email,password})
+        console.log(res)
+        if(res.status === 200){
+          localStorage.setItem('id',res.data.admin.id)
+          navigate("/admin-dashboard");
+        }
+        else {
+          console.warn("wrong credentials");
+        }
     } else {
-      navigate("/dashboard");
+        const res = await memberLogin({email,password});
+        console.log(res)
+        if(res.status === 200){
+          localStorage.setItem('id',res.data.member.id)
+          navigate("/dashboard");
+        }
+        else{
+          console.warn("wrong credentials");
+        }
+          
+
     }
   };
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { User, Mail, Phone, MapPin, Calendar, BookOpen, DollarSign, Edit2, Save, X } from "lucide-react";
 //import { userProfile as initialProfile } from "../data/mockData.js";
-import { getMemberByEmail,updateMember } from "../api/memberApi";
+import { updateMember,getMemberById } from "../api/memberApi";
 
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -11,7 +11,8 @@ function Profile() {
   
   useEffect(() => {
   const loadProfile = async () => {
-    const res = await getMemberByEmail("john.doe@example.com");
+    const id = localStorage.getItem('id');
+    const res = await getMemberById(id);
     console.table(res.data);
 
     const data = res.data?.data || res.data; // handle both cases

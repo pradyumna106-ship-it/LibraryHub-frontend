@@ -1,15 +1,8 @@
 import React from "react";
 import img from "../assets/logo.webp";
+import { useNavigate } from "react-router";
 const LoginType = () => {
-  const handleNavigation = (role) => {
-    if (role === "member") {
-      console.log("Navigate to Member Login");
-      // navigate("/member-login");
-    } else {
-      console.log("Navigate to Admin Login");
-      // navigate("/admin-login");
-    }
-  };
+  const handleNavigation = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-100 to-gray-300">

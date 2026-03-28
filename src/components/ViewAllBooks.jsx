@@ -18,7 +18,7 @@ function ViewAllBooks() {
     if (showAvailableOnly && !book.available) return false;
     return true;
   });
-    const id = "69c28ca4b067e752b9d87135"
+    const id = localStorage.getItem('id')||"69c28ca4b067e752b9d87135"
     useEffect(() => {
     const fetchBooks = async () => {
       const res = await getBooks();

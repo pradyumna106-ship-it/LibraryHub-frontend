@@ -1,13 +1,13 @@
 import { createBrowserRouter } from "react-router";
-import Layout from "./components/Layout.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import ViewAllBooks from "./pages/ViewAllBooks.jsx";
-import MyBooks from "./pages/MyBooks.jsx";
-import BorrowedBooks from "./pages/BorrowedBooks.jsx";
-import History from "./pages/History.jsx";
-import Profile from "./pages/Profile.jsx";
-import LoginType from "./pages/LoginType.jsx";
-import AuthLayout from "./components/AuthLayout.jsx";
+import Layout from "./pages/Layout.jsx";
+import Dashboard from "./components/Dashboard.jsx";
+import ViewAllBooks from "./components/ViewAllBooks.jsx";
+import MyBooks from "./components/MyBooks.jsx";
+import BorrowedBooks from "./components/BorrowedBooks.jsx";
+import History from "./components/History.jsx";
+import Profile from "./components/Profile.jsx";
+import LoginType from "./components/LoginType.jsx";
+import AuthLayout from "./pages/AuthLayout.jsx";
 import LogIn from "./components/LogIn.jsx";
 
 export const router = createBrowserRouter([

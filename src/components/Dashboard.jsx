@@ -8,7 +8,7 @@ function Dashboard() {
     async function loadDashboard() {
       try {
         // const user = JSON.parse(localStorage.getItem("user"));
-        const memberId = 	'69c28ca4b067e752b9d87135';
+        const memberId = 	localStorage.getItem('id')||'69c28ca4b067e752b9d87135';
 
         if (!memberId) {
           console.error("No memberId found");

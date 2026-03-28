@@ -30,7 +30,7 @@ const isActive = (path) => location.pathname === path;
   };
 
   const menuItems = [
-  { label: "DASHBOARD", path: "/" },
+  { label: "DASHBOARD", path: "/dashboard" },
   { label: "VIEW ALL BOOKS", path: "/view-all-books" },
   { label: "MY BOOKS", path: "/my-books" },
   { label: "BORROWED BOOKS", path: "/borrowed-books" },
