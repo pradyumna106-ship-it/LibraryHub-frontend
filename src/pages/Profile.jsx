@@ -5,7 +5,7 @@ import { getMemberByEmail,updateMember } from "../api/memberApi";
 
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
-  const [userProfile, setUserProfile] = useState({});
+  // const [userProfile, setUserProfile] = useState({});
   const [profile, setProfile] = useState({});
   const [editedProfile, setEditedProfile] = useState({});
   
@@ -16,7 +16,7 @@ function Profile() {
 
     const data = res.data?.data || res.data; // handle both cases
 
-    setUserProfile(data);
+    //setUserProfile(data);
     setProfile(data);          // ✅ IMPORTANT
     setEditedProfile(data);    // ✅ IMPORTANT
       };

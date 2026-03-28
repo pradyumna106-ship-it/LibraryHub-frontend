@@ -69,10 +69,8 @@ const isActive = (path) => location.pathname === path;
           onMarkAllAsRead={markAllAsRead}
         />
       )}
-
       <Outlet />
     </div>
-
   </div>
 </div>
   );
