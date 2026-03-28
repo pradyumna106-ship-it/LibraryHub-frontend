@@ -1,5 +1,5 @@
 import React from "react";
-
+import img from "../assets/logo.webp";
 const LoginType = () => {
   const handleNavigation = (role) => {
     if (role === "member") {
@@ -18,12 +18,12 @@ const LoginType = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <img
-            src="https://upload.wikimedia.org/wikipedia/en/5/5c/Visvesvaraya_Technological_University_logo.png"
-            alt="VTU"
+            src={img}
+            alt="LMS"
             className="w-20 mx-auto mb-3"
           />
           <h1 className="text-2xl font-bold">
-            Online Learning Platform
+            Welcome to Library Hub
           </h1>
           <p className="text-gray-500 text-sm">
             Select your login type

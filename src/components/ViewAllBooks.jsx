@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
 import { ChevronDown } from "lucide-react";
-import BookCard from "../components/BookCard.jsx";
+import BookCard from "./BookCard.jsx";
 import { addMyBooks, getMyBooks } from "../api/memberApi.js";
 import { getBooks } from "../api/bookAPI.js";
 

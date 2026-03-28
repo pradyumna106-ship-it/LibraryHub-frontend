@@ -1,4 +1,4 @@
-
+import { Bookmark } from 'lucide-react';
 
 function BookCard({ book, onBorrow, onBookmark, myBooks=[] }) {
   const isBookmarked = myBooks.some((b) => b._id === book._id);

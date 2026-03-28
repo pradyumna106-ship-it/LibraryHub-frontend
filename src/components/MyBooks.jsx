@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import BookCard from "../components/BookCard.jsx";
+import BookCard from "./BookCard.jsx";
 import { getMyBooks } from "../api/memberApi.js"; 
 import { getBookById } from "../api/bookAPI.js";
 function MyBooks() {

@@ -1,9 +1,9 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
-import Sidebar from "./Sidebar.jsx";
-import Header from "./Header.jsx";
+import Sidebar from "../components/Sidebar.jsx";
+import Header from "../components/Header.jsx";
 import { notifications as notificationsData } from "../data/mockData.js";
-import NotificationPanel from "./NotificationPanel.jsx";
+import NotificationPanel from "../components/NotificationPanel.jsx";
 import img from "../assets/logo.webp";
 function Layout() {
   const navigate = useNavigate();
