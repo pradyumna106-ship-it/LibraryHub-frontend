@@ -8,6 +8,7 @@ import History from "./pages/History.jsx";
 import Profile from "./pages/Profile.jsx";
 import LoginType from "./pages/LoginType.jsx";
 import AuthLayout from "./components/AuthLayout.jsx";
+import LogIn from "./components/LogIn.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
     Component: AuthLayout,
     children: [
       { index: true, Component: LoginType },
+      { path: "login/:role", Component: LogIn }
     ],
   },
 ]);

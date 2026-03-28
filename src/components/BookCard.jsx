@@ -8,7 +8,11 @@ function BookCard({ book, onBorrow, onBookmark, myBooks=[] }) {
       <div className="flex justify-end">
         {onBookmark && (
           <button onClick={() => onBookmark(book)}>
-            {isBookmarked ? "🔖" : "📑"}
+           {isBookmarked ? (
+            <Bookmark className="fill-black text-black" size={20} strokeWidth={2} />
+          ) : (
+            <Bookmark className="stroke-black text-black" size={20} strokeWidth={2} />
+          )}
           </button>
         )}
       </div>

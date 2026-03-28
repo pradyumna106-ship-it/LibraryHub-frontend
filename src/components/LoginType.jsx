@@ -35,7 +35,7 @@ const LoginType = () => {
           
           {/* Member */}
           <div
-            onClick={() => handleNavigation("member")}
+            onClick={() => handleNavigation("login/member")}
             className="cursor-pointer bg-blue-50 hover:bg-blue-100 p-6 rounded-xl shadow transition duration-300 text-center"
           >
             <img
@@ -50,7 +50,7 @@ const LoginType = () => {
 
           {/* Admin */}
           <div
-            onClick={() => handleNavigation("admin")}
+            onClick={() => handleNavigation("login/admin")}
             className="cursor-pointer bg-green-50 hover:bg-green-100 p-6 rounded-xl shadow transition duration-300 text-center"
           >
             <img

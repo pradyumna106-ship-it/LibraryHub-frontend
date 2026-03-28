@@ -1,17 +1,18 @@
 import { User } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function LogIn() {
   const navigate = useNavigate();
+  const { role } = useParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const isAdmin = role === "admin";
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log(email, password);
+    console.log(role, email, password);
 
     // 🔥 simple validation
     if (!email || !password) {
@@ -19,8 +20,12 @@ function LogIn() {
       return;
     }
 
-    // 🚀 Navigate after login
-    navigate("/dashboard");
+      // 🚀 Navigate based on role
+    if (isAdmin) {
+      navigate("/admin-dashboard");
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   return (
@@ -70,13 +75,15 @@ function LogIn() {
 
         </form>
 
-        {/* Footer */}
-        <p className="text-center text-sm mt-5">
-          Don’t have an account?{" "}
-          <span className="text-blue-600 cursor-pointer hover:underline">
-            Register Here
-          </span>
-        </p>
+        {/* Footer (ONLY for Member) */}
+        {!isAdmin && (
+          <p className="text-center text-sm mt-5">
+            Don’t have an account?{" "}
+            <span className="text-blue-600 cursor-pointer hover:underline">
+              Register Here
+            </span>
+          </p>
+        )}
 
       </div>
     </div>
