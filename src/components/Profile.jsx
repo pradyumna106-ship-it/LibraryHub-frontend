@@ -2,16 +2,21 @@ import { useEffect, useState } from "react";
 import { User, Mail, Phone, MapPin, Calendar, BookOpen, DollarSign, Edit2, Save, X } from "lucide-react";
 //import { userProfile as initialProfile } from "../data/mockData.js";
 import { updateMember,getMemberById } from "../api/memberApi";
-
+import {useNavigate} from "react-router"
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   // const [userProfile, setUserProfile] = useState({});
   const [profile, setProfile] = useState({});
   const [editedProfile, setEditedProfile] = useState({});
-  
+  const navigate = useNavigate()
   useEffect(() => {
   const loadProfile = async () => {
     const id = localStorage.getItem('id');
+    // ❌ if no id → redirect
+    if (!id || id === "null") {
+      console.log("No ID found, redirecting...",id);
+      return;
+    }
     const res = await getMemberById(id);
     console.table(res.data);
 
@@ -42,6 +47,14 @@ function Profile() {
       "B.Com",
       "Arts"
     ];
+    const handleLogout = () => {
+      // 🧹 Clear storage
+      localStorage.removeItem("id");
+      //localStorage.removeItem("token"); // if you use JWT later
+
+      // 🚀 Redirect to login type page
+      navigate("/");
+    };
   const handleSave = async () => {
   try {
     const res = await updateMember(profile._id || profile.id, editedProfile);
@@ -78,7 +91,6 @@ function Profile() {
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-800">My Profile</h1>
-        
         {!isEditing ? (
           <button
             onClick={handleEdit}
@@ -105,6 +117,12 @@ function Profile() {
             </button>
           </div>
         )}
+        <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors"
+          >
+            Logout
+          </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

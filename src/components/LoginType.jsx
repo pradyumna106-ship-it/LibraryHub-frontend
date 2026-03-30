@@ -61,9 +61,9 @@ const LoginType = () => {
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500">
           Don’t have an account?{" "}
-          <span className="text-blue-600 cursor-pointer hover:underline">
+          <a href="/signup"  className="text-blue-600 cursor-pointer hover:underline">
             Apply Now
-          </span>
+          </a>
         </div>
 
       </div>

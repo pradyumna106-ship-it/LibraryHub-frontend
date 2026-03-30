@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+import { User,LockIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { adminLogin, memberLogin } from "../api/base";
@@ -27,6 +27,7 @@ function LogIn() {
         console.log(res)
         if(res.status === 200){
           localStorage.setItem('id',res.data.admin.id)
+          localStorage.setItem('role',role);
           navigate("/admin-dashboard");
         }
         else {
@@ -37,6 +38,7 @@ function LogIn() {
         console.log(res)
         if(res.status === 200){
           localStorage.setItem('id',res.data.member.id)
+          localStorage.setItem('role',role);
           navigate("/dashboard");
         }
         else{
@@ -54,11 +56,16 @@ function LogIn() {
         {/* Header */}
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
-            <User size={40} className="text-blue-600" />
+            {(role === "member")? (
+              <User size={40} className="text-blue-600" />
+            ):(
+              <LockIcon size={40} className="text-blue-600" />
+            )
+          }
           </div>
 
           <h1 className="text-2xl font-bold">
-            Login as Member
+            Login as {role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()}
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
@@ -98,9 +105,9 @@ function LogIn() {
         {!isAdmin && (
           <p className="text-center text-sm mt-5">
             Don’t have an account?{" "}
-            <span className="text-blue-600 cursor-pointer hover:underline">
+            <a href="/signup" className="text-blue-600 cursor-pointer hover:underline">
               Register Here
-            </span>
+            </a>
           </p>
         )}
 
