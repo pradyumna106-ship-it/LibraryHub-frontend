@@ -1,14 +1,35 @@
+import { useEffect, useState } from "react";
+import {getMembers} from '../api/memberApi'
+
+
 function ManageUser() {
-  const users = [
-    {
-      name: "Pradyumna",
-      dept: "BCA",
-      email: "pradyumna@gmail.com",
-      phone: "9876543210",
-      memberType: "Student",
-      status: "Active"
-    }
-  ];
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+  
+    // ✅ Fixed: Import your API function
+    // import { fetchBooks, deleteBook, updateBook } from '../api/bookApi';
+  
+    useEffect(() => {
+      async function fetchBooksData() {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          // ✅ Fixed: Proper fetch + response.json()
+          const res = await getMembers();  // axios
+          const data = res.data;
+          setUsers(Array.isArray(data) ? data : data.members || []);
+        } catch (error) {
+          console.error('Fetch error:', error);
+          setError('Failed to load books');
+        } finally {
+          setLoading(false);
+        }
+      }
+      
+      fetchBooksData();
+    }, []);
 
   return (
     <div className="p-6">

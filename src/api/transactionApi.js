@@ -35,3 +35,9 @@ export const getBorrowedBooksDetails = (memberId) =>
 // Dashboard Stats
 export const getDashboardStats = (memberId) =>
   API.get(`/transaction/dashboardStats/${memberId}`);
+
+export const getIssuedCount = () => 
+  API.get('/transaction/countAll')
+
+export const approvedRequest = (id) =>
+  API.get(`/transaction/approveRequest/${id}`)

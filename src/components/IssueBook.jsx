@@ -98,14 +98,12 @@ function IssueBook() {
                       </button>
                     </>
                   )}
-
                   {req.status !== "Pending" && (
                     <span className="text-gray-500 text-xs">
                       No Action
                     </span>
                   )}
                 </td>
-
               </tr>
             ))}
           </tbody>

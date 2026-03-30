@@ -20,5 +20,9 @@ export const getBookById = (id) =>
 export const deleteBook = (id) =>
   API.delete(`/book/deleteById/${id}`);
 
+export const getBookCount = () => 
+  API.get('/book/countAll')
+
+
 
 
