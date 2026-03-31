@@ -1,7 +1,7 @@
 import { useState,useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import BookCard from "./BookCard.jsx";
-import { addMyBooks, getMyBooks } from "../api/memberApi.js";
+import { addMyBooks, deleteMyBooks, getMyBooks } from "../api/memberApi.js";
 import { getBooks } from "../api/bookAPI.js";
 
 function ViewAllBooks() {
@@ -43,27 +43,36 @@ function ViewAllBooks() {
 
   fetchMyBooks();
 }, []);
-  const handleBookmark = async (book) => {
-    try {
-      const exists = myBooks.some((b) => b._id === book._id);
-      let updatedBooks;
-      if (exists) {
-        updatedBooks = myBooks.filter((b) => b._id !== book._id);
-      } else {
-        updatedBooks = [...myBooks, book];
-      }
-      // ✅ Update UI
+const handleBookmark = async (book) => {
+  try {
+    const exists = myBooks.some((b) => b._id === book._id);
+    let updatedBooks;
+    
+    if (exists) {
+      // Remove from local state first (optimistic update)
+      updatedBooks = myBooks.filter((b) => b._id !== book._id);
       setMyBooks(updatedBooks);
-      // ✅ Send ONLY single bookId
-      const bookId = book._id
-      console.log("Sending bookId:", bookId);
       
-      const res = await addMyBooks(id, bookId);
-      console.log(res.data)
-    } catch (error) {
-      console.error("Bookmark error:", error);
+      // Call delete API when unchecking
+      console.log("Removing bookId:", book._id);
+      const res = await deleteMyBooks(id, book._id);  // ✅ New delete API call
+      console.log("Delete response:", res.data);
+    } else {
+      // Add to local state first
+      updatedBooks = [...myBooks, book];
+      setMyBooks(updatedBooks);
+      
+      // Call add API
+      console.log("Adding bookId:", book._id);
+      const res = await addMyBooks(id, book._id);
+      console.log("Add response:", res.data);
     }
-  };
+  } catch (error) {
+    console.error("Bookmark error:", error);
+    // ✅ Rollback on error - reload from server or revert state
+    // setMyBooks(previousBooks); // Use useRef for previous state
+  }
+};
   const handleBorrow = (book) => {
     alert(`Borrowing: ${book.title}`);
   };

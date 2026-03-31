@@ -39,5 +39,8 @@ export const getDashboardStats = (memberId) =>
 export const getIssuedCount = () => 
   API.get('/transaction/countAll')
 
-export const approvedRequest = (id) =>
-  API.get(`/transaction/approveRequest/${id}`)
+export const getTransactionsWithNameTitle = () =>
+  API.get("/transaction/fetchAllWithNameTitle");
+
+export const getTransactionsHistory = () =>
+  API.get("/transaction/history");

@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { useState } from "react";
+import { getTransactionsWithNameTitle } from "../api/transactionApi";
 
 function Transaction() {
-  const [transactions] = useState([
+  const [transactions,setTransactions] = useState([
     {
       txnId: 5001,
       member: "Pradyumna",
@@ -23,6 +25,14 @@ function Transaction() {
       fine: 50
     }
   ]);
+  useEffect(() => {
+    async function fetchAll() {
+      const res = await getTransactionsWithNameTitle();
+      console.log(res)
+      setTransactions(res.data||[]);
+    }
+    fetchAll()
+  },[]);
 
   return (
     <div className="p-6 space-y-6">

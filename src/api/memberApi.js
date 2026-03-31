@@ -27,5 +27,6 @@ export const getMyBooks = (id) => API.get(`/member/getMyBooks/${id}`)
 
 export const addMyBooks = (id,bookId) => API.put(`/member/addMyBooks/${id}`,{bookId})
 
+export const deleteMyBooks = (id,bookId) => API.put(`/member/deleteMyBooks/${id}`,{bookId})
 export const getMemberCount = () => 
   API.get('/member/countAll')

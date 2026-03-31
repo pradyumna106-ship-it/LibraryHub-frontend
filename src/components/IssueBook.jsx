@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getBorrowRequests } from "../api/borrowRequestAPI";
 
 function IssueBook() {
   const [requests, setRequests] = useState([
@@ -17,7 +18,14 @@ function IssueBook() {
       status: "Pending"
     }
   ]);
-
+  useEffect(() => {
+    async function fetchRequests() {
+      const res = await getBorrowRequests();
+      console.log(res);
+      setRequests(res.data||[])
+    }
+    fetchRequests()
+  },[]);
   const handleApprove = (id) => {
     setRequests(prev =>
       prev.map(req =>
