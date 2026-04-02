@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { getBorrowRequests } from "../api/borrowRequestAPI";
+import { getBorrowRequests, updateBorrowRequest } from "../api/borrowRequestAPI";
+import { getMemberById } from "../api/memberApi";
+import { getBookById } from "../api/bookApi";
+import { addTransaction } from "../api/transactionApi";
 
 function IssueBook() {
   const [requests, setRequests] = useState([
@@ -18,28 +21,95 @@ function IssueBook() {
       status: "Pending"
     }
   ]);
+  const [loadingIds, setLoadingIds] = useState([]);
   useEffect(() => {
     async function fetchRequests() {
       const res = await getBorrowRequests();
-      console.log(res);
-      setRequests(res.data||[])
-    }
-    fetchRequests()
-  },[]);
-  const handleApprove = (id) => {
-    setRequests(prev =>
-      prev.map(req =>
-        req.id === id ? { ...req, status: "Approved" } : req
-      )
-    );
-  };
 
-  const handleReject = (id) => {
-    setRequests(prev =>
-      prev.map(req =>
-        req.id === id ? { ...req, status: "Rejected" } : req
-      )
-    );
+      const requestsWithDetails = await Promise.all(
+        res.data.map(async (req) => {
+          const [bookRes, memberRes] = await Promise.all([
+            getBookById(req.bookId),
+            getMemberById(req.memberId)
+          ]);
+
+          return {
+            ...req,
+            memberName: memberRes.data.name,
+            bookTitle: bookRes.data.title
+          };
+        })
+      );
+      console.table(requestsWithDetails)
+      setRequests(requestsWithDetails.filter((req) => {
+        return req.status === "Pending"
+      })||[]);
+      
+    const approved = requestsWithDetails.filter(req => req.status === "Approved");
+
+      const transactions = approved.map(req => ({
+        memberId: req.memberId,
+        bookId: req.bookId,
+        issueDate: new Date(),
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // REQUIRED ✅
+        status: "Issued" // ✅ MUST match schema enum
+      }));
+
+      await Promise.all(transactions.map(data => addTransaction(data)));
+          }
+
+    fetchRequests();
+  }, []);
+  const handleApprove = async (id) => {
+    try {
+      // disable button (optional but recommended)
+      setLoadingIds((prev) => [...prev, id]);
+
+      // optimistic UI update
+      setRequests(prev =>
+        prev.map(req =>
+          req._id === id ? { ...req, status: "Approved" } : req
+        )
+      );
+
+      // ✅ send only required data
+      const res = await updateBorrowRequest(id, { status: "Approved" });
+
+      console.log(res.data);
+    } catch (error) {
+      console.error(error);
+
+      // ❗ rollback if needed
+      setRequests(prev =>
+        prev.map(req =>
+          req._id === id ? { ...req, status: "Pending" } : req
+        )
+      );
+    } finally {
+      setLoadingIds((prev) => prev.filter((item) => item !== id));
+    }
+  };
+  const handleReject = async (id) => {
+    try {
+        setRequests(prev =>
+          prev.map(req =>
+            req._id === id ? { ...req, status: "Rejected" } : req
+          )
+        );
+       // ✅ send only required data
+      const res = await updateBorrowRequest(id, { status: "Approved" });
+      console.log(res.data);
+    } catch (error) {
+      console.error(error);
+      // ❗ rollback if needed
+      setRequests(prev =>
+        prev.map(req =>
+          req._id === id ? { ...req, status: "Pending" } : req
+        )
+      );
+    } finally {
+      setLoadingIds((prev) => prev.filter((item) => item !== id));
+    }
   };
 
   return (
@@ -67,8 +137,8 @@ function IssueBook() {
 
           {/* Body */}
           <tbody>
-            {requests.map((req) => (
-              <tr key={req.id} className="border-t hover:bg-gray-50">
+            {requests.map((req,index) => (
+              <tr key={index} className="border-t hover:bg-gray-50">
 
                 <td className="px-4 py-3">{req.memberName}</td>
                 <td className="px-4 py-3">{req.bookTitle}</td>
@@ -92,15 +162,23 @@ function IssueBook() {
                   {req.status === "Pending" && (
                     <>
                       <button
-                        onClick={() => handleApprove(req.id)}
-                        className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
+                        onClick={() => handleApprove(req._id)} disabled={loadingIds.includes(req._id)}
+                        className={`px-2 py-1 rounded text-xs text-white ${
+                          loadingIds.includes(req._id)
+                            ? "bg-green-300 cursor-not-allowed"
+                            : "bg-green-500 hover:bg-green-600"
+                        }`}
                       >
                         Approve
                       </button>
 
                       <button
-                        onClick={() => handleReject(req.id)}
-                        className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
+                        onClick={() => handleReject(req._id)} disabled={loadingIds.includes(req._id)}
+                        className={`px-2 py-1 rounded text-xs text-white ${
+                          loadingIds.includes(req._id)
+                            ? "bg-red-300 cursor-not-allowed"
+                            : "bg-red-500 hover:bg-red-600"
+                        }`}
                       >
                         Reject
                       </button>

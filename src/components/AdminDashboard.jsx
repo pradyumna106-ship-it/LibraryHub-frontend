@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { BookOpen, Users, Receipt, Loader2 } from 'lucide-react';
 import { getBookCount } from '../api/bookApi';
 import { getMemberCount } from '../api/memberApi';
-import { getIssuedCount } from '../api/transactionApi';
+import { getIssuedCount, getTransactionsWithNameTitle } from '../api/transactionApi';
+
 
 export default function AdminDashboard() {
   const [dashboardStats, setDashboardStats] = useState({
@@ -13,26 +14,33 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const Issues = [
+  const [Issues,setIssues] = useState([
     { name: "Pradyumna", book: "JavaScript Basics", date: "10 Mar 2026", status: "Active" },
     { name: "Ram", book: "Python Guide", date: "12 Mar 2026", status: "Overdue" }
-  ];
+  ]);
 
   useEffect(() => {
     const fetchCounts = async () => {
         try {
-          const [booksRes, membersRes, issuedRes] = await Promise.all([
+          const [booksRes, membersRes, issuedRes, TransactionRes] = await Promise.all([
             getBookCount(),
             getMemberCount(),
-            getIssuedCount()
+            getIssuedCount(),
+            getTransactionsWithNameTitle()
           ]);
-          
           // ✅ Extract .data from each response
           setDashboardStats({
             totalBooks: booksRes.data || 0,      // 123
             totalMembers: membersRes.data || 0, // 456  
             issuedBooks: issuedRes.data || 0     // 78
           });
+          const formated = TransactionRes.data.map((issue) => ({
+              ...issue,
+              name: issue.memberName,
+              book: issue.bookTitle,
+              date: issue.issueDate
+          }));
+          setIssues(formated)
         } catch (error) {
           console.error(error);
           setError(error)
@@ -40,7 +48,6 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     };
-
     fetchCounts();
   }, []);
 

@@ -15,6 +15,9 @@ export const getBorrowRequests = () =>
 export const getBorrowRequestById = (id) =>
   API.get(`/borrowRequest/fetchById/${id}`);
 
+export const getBorrowRequestBymemberId = (memberId) =>
+  API.get(`/borrowRequest/fetchBymemberId/${memberId}`);
+
 // Delete
 export const deleteBorrowRequest = (id) =>
   API.delete(`/borrowRequest/deleteById/${id}`);

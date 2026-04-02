@@ -2,7 +2,8 @@ import { useState,useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import BookCard from "./BookCard.jsx";
 import { addMyBooks, deleteMyBooks, getMyBooks } from "../api/memberApi.js";
-import { getBooks } from "../api/bookAPI.js";
+import { getBooks } from "../api/bookApi.js";
+import {addBorrowRequest, getBorrowRequestBymemberId} from '../api/borrowRequestAPI.js'
 
 function ViewAllBooks() {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -10,6 +11,7 @@ function ViewAllBooks() {
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [allBooks,setAllBooks] = useState([]);
   const [myBooks, setMyBooks] = useState([]);
+  const [borrowRequests, setBorrowRequests] = useState([]);
   const categories = ["All", ...new Set(allBooks.map(book => book.category))];
   const authors = ["All", ...new Set(allBooks.map(book => book.author))];
   const filteredBooks = allBooks.filter(book => {
@@ -20,62 +22,74 @@ function ViewAllBooks() {
   });
     const id = localStorage.getItem('id')||"69c28ca4b067e752b9d87135"
     useEffect(() => {
-    const fetchBooks = async () => {
-      const res = await getBooks();
-      console.log(res);
-      console.table(res.data)
-      if (res.status === 200) {
-        setAllBooks(res.data); // ⚠️ make sure it's array
-      } else {
-        console.error(res.data.message);
+      async function fetchData() {
+        try {
+          const [booksRes, myBooksRes,borrowRequestRes] = await Promise.all([
+            getBooks(),
+            getMyBooks(id),
+            getBorrowRequestBymemberId(id)
+          ]);
+          // ✅ Handle Books
+          if (booksRes.status === 200) {
+            console.log(booksRes);
+            console.table(booksRes.data);
+            setAllBooks(booksRes.data || []);
+          } else {
+            console.error(booksRes.data?.message);
+          }
+          // ✅ Handle My Books
+          if (myBooksRes.status === 200) {
+            setMyBooks(myBooksRes.data || []);
+          } else {
+            console.error(myBooksRes.data?.message);
+          }
+          if (borrowRequestRes.status === 200) {
+            setBorrowRequests(borrowRequestRes.data)
+          } else {
+            console.error(borrowRequestRes.data?.message)
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       }
+      fetchData();
+    }, [id]);
+  const handleBookmark = async (book) => {
+    try {
+      const exists = myBooks.some((b) => b._id === book._id);
+      let updatedBooks;
+      
+      if (exists) {
+        // Remove from local state first (optimistic update)
+        updatedBooks = myBooks.filter((b) => b._id !== book._id);
+        setMyBooks(updatedBooks);
+        
+        // Call delete API when unchecking
+        console.log("Removing bookId:", book._id);
+        const res = await deleteMyBooks(id, book._id);  // ✅ New delete API call
+        console.log("Delete response:", res.data);
+      } else {
+        // Add to local state first
+        updatedBooks = [...myBooks, book];
+        setMyBooks(updatedBooks);
+        
+        // Call add API
+        console.log("Adding bookId:", book._id);
+        const res = await addMyBooks(id, book._id);
+        console.log("Add response:", res.data);
+      }
+    } catch (error) {
+      console.error("Bookmark error:", error);
+      // ✅ Rollback on error - reload from server or revert state
+      // setMyBooks(previousBooks); // Use useRef for previous state
+    }
+  };
+    const handleBorrow = async (book) => {
+      alert(`Borrowing: ${book.title}`);
+      const id = localStorage.getItem('id') || "69cdeb455ac4a12b21412d14"
+      const res = await addBorrowRequest({memberId:id, bookId:book._id});
+      console.log(res);
     };
-    fetchBooks();
-  }, []);
-  useEffect(() => {
-  const fetchMyBooks = async () => {
-    const res = await getMyBooks(id);
-
-    if (res.status === 200) {
-      setMyBooks(res.data); // ✅ populated books
-    }
-  };
-
-  fetchMyBooks();
-}, []);
-const handleBookmark = async (book) => {
-  try {
-    const exists = myBooks.some((b) => b._id === book._id);
-    let updatedBooks;
-    
-    if (exists) {
-      // Remove from local state first (optimistic update)
-      updatedBooks = myBooks.filter((b) => b._id !== book._id);
-      setMyBooks(updatedBooks);
-      
-      // Call delete API when unchecking
-      console.log("Removing bookId:", book._id);
-      const res = await deleteMyBooks(id, book._id);  // ✅ New delete API call
-      console.log("Delete response:", res.data);
-    } else {
-      // Add to local state first
-      updatedBooks = [...myBooks, book];
-      setMyBooks(updatedBooks);
-      
-      // Call add API
-      console.log("Adding bookId:", book._id);
-      const res = await addMyBooks(id, book._id);
-      console.log("Add response:", res.data);
-    }
-  } catch (error) {
-    console.error("Bookmark error:", error);
-    // ✅ Rollback on error - reload from server or revert state
-    // setMyBooks(previousBooks); // Use useRef for previous state
-  }
-};
-  const handleBorrow = (book) => {
-    alert(`Borrowing: ${book.title}`);
-  };
 
   return (
     <div className="p-8">
@@ -134,6 +148,7 @@ const handleBookmark = async (book) => {
             onBorrow={handleBorrow}
             onBookmark={handleBookmark}
             myBooks={myBooks}
+            borrowRequests={borrowRequests}
           />
         ))}
       </div>

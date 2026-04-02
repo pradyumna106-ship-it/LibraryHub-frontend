@@ -16,6 +16,10 @@ import ManageUser from "./components/ManageUser.jsx";
 import IssueBook from "./components/IssueBook.jsx";
 import Transaction from "./components/Transaction.jsx";
 import HistoryContent from "./components/HistoryContent.jsx";
+import AddBook from "./components/AddBook.jsx";
+import AddPublisher from "./components/AddPublisher.jsx";
+import EditBook from "./components/EditBook .jsx";
+import EditMember from "./components/EditMember.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -33,7 +37,12 @@ export const router = createBrowserRouter([
       { path: "crud-member", Component: ManageUser},
       { path: "issue-book", Component: IssueBook},
       { path: "transaction", Component: Transaction},
-      { path: "admin-history", Component: HistoryContent}
+      { path: "admin-history", Component: HistoryContent},
+      { path: "add-book", Component: AddBook},
+      { path: "add-publisher", Component: AddPublisher},
+      { path: "edit-book/:id", Component: EditBook},
+      { path: "add-member", Component: SignUp},
+      { path: "edit-member/:id", Component: EditMember}
     ],
   },
     {

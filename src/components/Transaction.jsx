@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { getTransactionsWithNameTitle } from "../api/transactionApi";
 
+
 function Transaction() {
   const [transactions,setTransactions] = useState([
     {
@@ -25,14 +26,19 @@ function Transaction() {
       fine: 50
     }
   ]);
-  useEffect(() => {
-    async function fetchAll() {
-      const res = await getTransactionsWithNameTitle();
-      console.log(res)
-      setTransactions(res.data||[]);
+ useEffect(() => {
+  async function fetchAll() {
+    const res = await getTransactionsWithNameTitle();
+    const formatted = res.data.map((txn) => ({
+      ...txn,
+      memberName: txn.memberName,
+      bookTitle: txn.bookTitle
+    }));
+      setTransactions(formatted || []);
     }
-    fetchAll()
-  },[]);
+      fetchAll();
+    }, []);
+
 
   return (
     <div className="p-6 space-y-6">
@@ -88,9 +94,9 @@ function Transaction() {
             {transactions.map((txn, index) => (
               <tr key={index} className="border-t hover:bg-gray-50">
 
-                <td className="px-4 py-3">{txn.txnId}</td>
-                <td className="px-4 py-3">{txn.member}</td>
-                <td className="px-4 py-3">{txn.book}</td>
+                <td className="px-4 py-3">{txn._id}</td>
+                <td className="px-4 py-3">{txn.memberName}</td>
+                <td className="px-4 py-3">{txn.bookTitle}</td>
                 <td className="px-4 py-3">{txn.issueDate}</td>
                 <td className="px-4 py-3">{txn.dueDate}</td>
                 <td className="px-4 py-3">{txn.returnDate}</td>

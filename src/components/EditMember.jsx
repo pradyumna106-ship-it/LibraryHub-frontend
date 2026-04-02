@@ -2,20 +2,12 @@ import { useState } from 'react';
 import { User, Mail, Phone, MapPin, BookOpen, Users, Lock } from 'lucide-react';
 import { InternalServerError } from '../../../Backend/src/exception/exception';
 import { addMember } from '../api/memberApi';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 
-const SignUp = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    dept: '',
-    email: '',
-    phone: '',
-    address: '',
-    password: '',
-    confirmPassword: '',  // ✅ Added
-    memberType: 'Student',
-    avatar:''
-  });
+const EditMember = () => {
+    const { id } = useParams();
+    const location = useLocation();
+  const [formData, setFormData] = useState(location.state);
   const [avatar, setAvatar] = useState(null);
   const [preview, setPreview] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
@@ -368,4 +360,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default EditMember;

@@ -1,35 +1,56 @@
 import { useEffect, useState } from "react";
 import { Edit3, Trash2, Eye, Loader2, BookOpen } from 'lucide-react';
-import { getBooks } from "../api/bookApi";
+import { deleteBook, getBooks } from "../api/bookApi";
+import { getPublishers } from "../api/publisherApi";
+import { useNavigate } from "react-router";
 
 function UpdateCatalogue() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate()
 
   // ✅ Fixed: Import your API function
   // import { fetchBooks, deleteBook, updateBook } from '../api/bookApi';
 
-  useEffect(() => {
-    async function fetchBooksData() {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // ✅ Fixed: Proper fetch + response.json()
-        const res = await getBooks();  // axios
-        const data = res.data;
-        setBooks(Array.isArray(data) ? data : data.books || []);
-      } catch (error) {
-        console.error('Fetch error:', error);
-        setError('Failed to load books');
-      } finally {
-        setLoading(false);
-      }
+ useEffect(() => {
+  async function fetchBooksData() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [bookRes, publisherRes] = await Promise.all([
+        getBooks(),
+        getPublishers()
+      ]);
+
+      const books = bookRes.data || [];
+      const publishers = publisherRes.data || [];
+
+      // ✅ Merge books with publisher name
+      const formattedBooks = books.map((book) => {
+        const publisher = publishers.find(
+          (pub) => pub._id === book.publisherId
+        );
+
+        return {
+          ...book,
+          publisher: publisher ? publisher.name : "Unknown"
+        };
+      });
+
+      setBooks(formattedBooks);
+
+    } catch (error) {
+      console.error('Fetch error:', error);
+      setError('Failed to load books');
+    } finally {
+      setLoading(false);
     }
-    
-    fetchBooksData();
-  }, []);
+  }
+
+  fetchBooksData();
+}, []);
 
   const handleDelete = async (bookId) => {
     if (!confirm('Are you sure you want to delete this book?')) return;
@@ -37,14 +58,17 @@ function UpdateCatalogue() {
     try {
       // await deleteBook(bookId);
       setBooks(prev => prev.filter(book => book._id !== bookId));
+      const res = await deleteBook(bookId)
+      console.log(res)
       alert('Book deleted successfully!');
     } catch (error) {
       alert('Failed to delete book',error);
     }
   };
 
-  const handleEdit = (book) => {
+  const handleEdit = async (bookId,book) => {
     // Open modal or navigate to edit page
+    navigate(`/edit-book/${bookId}`, { state: book });
     console.log('Edit book:', book);
   };
 
@@ -100,7 +124,7 @@ function UpdateCatalogue() {
           <BookOpen className="h-8 w-8 text-blue-600" />
           Update Catalogue
         </h1>
-        <button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
+        <button onClick={() => navigate('/add-book')} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
           + Add Book
         </button>
       </div>
@@ -181,7 +205,7 @@ function UpdateCatalogue() {
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <button 
-                          onClick={() => handleEdit(book)}
+                          onClick={() => handleEdit(book._id, book)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg hover:scale-105 transition-all group/edit"
                           title="Edit Book"
                         >

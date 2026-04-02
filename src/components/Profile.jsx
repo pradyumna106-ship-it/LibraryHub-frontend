@@ -3,29 +3,39 @@ import { User, Mail, Phone, MapPin, Calendar, BookOpen, DollarSign, Edit2, Save,
 //import { userProfile as initialProfile } from "../data/mockData.js";
 import { updateMember,getMemberById } from "../api/memberApi";
 import {useNavigate} from "react-router"
+import { getAdminById, updateAdmin } from "../api/adminApi";
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   // const [userProfile, setUserProfile] = useState({});
   const [profile, setProfile] = useState({});
   const [editedProfile, setEditedProfile] = useState({});
   const navigate = useNavigate()
+  const role = localStorage.getItem('role')
   useEffect(() => {
   const loadProfile = async () => {
     const id = localStorage.getItem('id');
-    // ❌ if no id → redirect
-    if (!id || id === "null") {
-      console.log("No ID found, redirecting...",id);
-      return;
-    }
-    const res = await getMemberById(id);
-    console.table(res.data);
-
-    const data = res.data?.data || res.data; // handle both cases
-
-    //setUserProfile(data);
-    setProfile(data);          // ✅ IMPORTANT
-    setEditedProfile(data);    // ✅ IMPORTANT
-      };
+      // ❌ if no id → redirect
+      if (!id || id === "null") {
+        console.log("No ID found, redirecting...",id);
+        return;
+      }
+      if (role === "member") {
+        const res = await getMemberById(id);
+        console.table(res.data);
+        const data = res.data?.data || res.data; // handle both cases
+        //setUserProfile(data);
+        setProfile(data);          // ✅ IMPORTANT
+        setEditedProfile(data);
+      } else {
+        const res = await getAdminById(id);
+        console.table(res.data);
+        const data = res.data?.data || res.data; // handle both cases
+        //setUserProfile(data);
+        setProfile(data);          // ✅ IMPORTANT
+        setEditedProfile(data);
+      }
+        // ✅ IMPORTANT
+  };
 
       loadProfile();
     }, []);
@@ -55,26 +65,28 @@ function Profile() {
       // 🚀 Redirect to login type page
       navigate("/");
     };
-  const handleSave = async () => {
-  try {
-    const res = await updateMember(profile._id || profile.id, editedProfile);
+ const handleSave = async () => {
+    try {
+      let res;
 
-    if (res.success) {
+      if (role === "member") {
+        res = await updateMember(profile._id, editedProfile);
+      } else {
+        res = await updateAdmin(profile._id, editedProfile);
+      }
+
       const updatedData = res.data?.data || res.data;
 
-      setProfile(updatedData);        // ✅ update UI
-      setEditedProfile(updatedData);  // ✅ sync edit state
+      setProfile(updatedData);
+      setEditedProfile(updatedData);
       setIsEditing(false);
 
       alert("Profile updated successfully ✅");
-    } else {
-      alert(res.message || "Update failed ❌");
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong ❌");
     }
-  } catch (error) {
-    console.error(error);
-    alert("Something went wrong ❌");
-  }
-};
+  };
 
   const handleCancel = () => {
     setEditedProfile(profile);
@@ -217,7 +229,16 @@ function Profile() {
                   <p className="text-gray-900 text-lg">{currentProfile.email}</p>
                 )}
               </div>
+                {/* Role */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Role
+                </label>
 
+                <p className="text-gray-900 text-lg">
+                  {role || "Member"}
+                </p>
+              </div>
               {/* Phone */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">

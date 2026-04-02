@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import {getMembers} from '../api/memberApi'
-
+import { useNavigate } from 'react-router'
 
 function ManageUser() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-  
+    const navigate = useNavigate();
     // ✅ Fixed: Import your API function
     // import { fetchBooks, deleteBook, updateBook } from '../api/bookApi';
   
@@ -40,7 +40,7 @@ function ManageUser() {
           Manage Users
         </h1>
 
-        <button className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded-md text-sm">
+        <button onClick={() => navigate(`/add-member`)} className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded-md text-sm">
           Add User
         </button>
       </div>
