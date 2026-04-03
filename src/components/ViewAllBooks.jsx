@@ -4,6 +4,7 @@ import BookCard from "./BookCard.jsx";
 import { addMyBooks, deleteMyBooks, getMyBooks } from "../api/memberApi.js";
 import { getBooks } from "../api/bookApi.js";
 import {addBorrowRequest, getBorrowRequestBymemberId} from '../api/borrowRequestAPI.js'
+import { useOutletContext } from "react-router-dom";
 
 function ViewAllBooks() {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -12,12 +13,29 @@ function ViewAllBooks() {
   const [allBooks,setAllBooks] = useState([]);
   const [myBooks, setMyBooks] = useState([]);
   const [borrowRequests, setBorrowRequests] = useState([]);
+  const { searchQuery } = useOutletContext();
+
   const categories = ["All", ...new Set(allBooks.map(book => book.category))];
   const authors = ["All", ...new Set(allBooks.map(book => book.author))];
+
+  const q = (searchQuery || "").trim().toLowerCase();
   const filteredBooks = allBooks.filter(book => {
     if (selectedCategory !== "All" && book.category !== selectedCategory) return false;
     if (selectedAuthor !== "All" && book.author !== selectedAuthor) return false;
     if (showAvailableOnly && !book.available) return false;
+
+    if (q) {
+      const publisherName =
+        typeof book.publisherId === "object" && book.publisherId !== null
+          ? book.publisherId.name
+          : book.publisherId;
+
+      const titleMatch = (book.title || "").toLowerCase().includes(q);
+      const authorMatch = (book.author || "").toLowerCase().includes(q);
+      const publisherMatch = (publisherName || "").toString().toLowerCase().includes(q);
+
+      if (!titleMatch && !authorMatch && !publisherMatch) return false;
+    }
     return true;
   });
     const id = localStorage.getItem('id')||"69c28ca4b067e752b9d87135"
@@ -44,7 +62,7 @@ function ViewAllBooks() {
             console.error(myBooksRes.data?.message);
           }
           if (borrowRequestRes.status === 200) {
-            setBorrowRequests(borrowRequestRes.data?.data || [])
+            setBorrowRequests(borrowRequestRes.data || [])
           } else {
             console.error(borrowRequestRes.data?.message)
           }

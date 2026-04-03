@@ -29,13 +29,18 @@ function UpdateCatalogue() {
 
       // ✅ Merge books with publisher name
       const formattedBooks = books.map((book) => {
-        const publisher = publishers.find(
-          (pub) => pub._id === book.publisherId
-        );
+        // `book.publisherId` might be either an ObjectId string or a populated object.
+        const publisherId =
+          typeof book.publisherId === "object" && book.publisherId !== null
+            ? book.publisherId._id
+            : book.publisherId;
+
+        const publisher = publishers.find((pub) => pub._id === publisherId);
 
         return {
           ...book,
-          publisher: publisher ? publisher.name : "Unknown"
+          publisherId,
+          publisher: book.publisherId?.name || (publisher ? publisher.name : "Unknown")
         };
       });
 
@@ -80,7 +85,7 @@ function UpdateCatalogue() {
           <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-md" />
         </div>
         <div className="bg-white shadow-md rounded-lg border border-gray-200">
-          <div className="h-16 bg-gradient-to-r from-gray-800 to-gray-700 animate-pulse" />
+          <div className="h-16 bg-linear-to-r from-gray-800 to-gray-700 animate-pulse" />
           <div className="p-8 space-y-4">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg animate-pulse">
@@ -124,7 +129,7 @@ function UpdateCatalogue() {
           <BookOpen className="h-8 w-8 text-blue-600" />
           Update Catalogue
         </h1>
-        <button onClick={() => navigate('/add-book')} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
+        <button onClick={() => navigate('/add-book')} className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
           + Add Book
         </button>
       </div>
@@ -134,7 +139,7 @@ function UpdateCatalogue() {
         <div className="overflow-x-auto">
           <table className="w-full">
             {/* Header */}
-            <thead className="bg-gradient-to-r from-gray-800 to-gray-900 text-white">
+            <thead className="bg-linear-to-r from-gray-800 to-gray-900 text-white">
               <tr>
                 <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Title</th>
                 <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Author</th>

@@ -2,16 +2,12 @@ import axios from "axios";
 
 // ✅ Member Login FUNCTION
 export const memberLogin = (data) => {
-  return axios.post("http://localhost:4000/api/v1/member/login", data, {
-    "Content-Type": "application/json"
-  });
+  return API.post("/member/login", data);
 };
 
 // ✅ Admin Login FUNCTION
 export const adminLogin = (data) => {
-  return axios.post("http://localhost:4000/api/v1/admin/login", data, {
-    "Content-Type": "application/json"
-  });
+  return API.post("/admin/login", data);
 };
 
 // export const memberSignUp = (data) => {
@@ -20,11 +16,14 @@ export const adminLogin = (data) => {
 //   });
 // };
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api/v1";
+
 const API = axios.create({
-  baseURL: "http://localhost:4000/api/v1", // 🔥 change if needed
+  baseURL: API_BASE_URL,
   headers: {
-    "Content-Type": "application/json"
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 

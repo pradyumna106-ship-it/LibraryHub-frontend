@@ -10,6 +10,7 @@ function Layout() {
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState(notificationsData);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -56,6 +57,8 @@ const isActive = (path) => location.pathname === path;
         setShowNotifications={setShowNotifications}
         handleNavigation={handleNavigation}
         logo={img}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
 
       {/* 🔥 BELOW HEADER */}
@@ -79,7 +82,7 @@ const isActive = (path) => location.pathname === path;
               onMarkAllAsRead={markAllAsRead}
             />
           )}
-          <Outlet />
+          <Outlet context={{ searchQuery }} />
         </div>
       </div>
     </div>

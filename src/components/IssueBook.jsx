@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { getBorrowRequests, updateBorrowRequest } from "../api/borrowRequestAPI";
+import {
+  getBorrowRequests,
+  updateRequestStatus,
+} from "../api/borrowRequestAPI.js";
 import { getMemberById } from "../api/memberApi";
 import { getBookById } from "../api/bookApi";
 import { addTransaction } from "../api/transactionApi";
@@ -73,7 +76,7 @@ function IssueBook() {
       );
 
       // ✅ send only required data
-      const res = await updateBorrowRequest(id, { status: "Approved" });
+      const res = await updateRequestStatus(id, "Approved");
 
       console.log(res.data);
     } catch (error) {
@@ -97,7 +100,7 @@ function IssueBook() {
           )
         );
        // ✅ send only required data
-      const res = await updateBorrowRequest(id, { status: "Approved" });
+      const res = await updateRequestStatus(id, "Rejected");
       console.log(res.data);
     } catch (error) {
       console.error(error);

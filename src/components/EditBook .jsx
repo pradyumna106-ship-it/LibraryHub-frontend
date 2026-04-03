@@ -5,7 +5,16 @@ import { useLocation, useNavigate, useParams } from "react-router";
 
 function EditBook() {
   const location = useLocation();
-  const [formData, setFormData] = useState(location.state);
+  const initialData = location.state || {};
+  const normalizedPublisherId =
+    typeof initialData.publisherId === "object" && initialData.publisherId !== null
+      ? initialData.publisherId._id
+      : initialData.publisherId;
+
+  const [formData, setFormData] = useState({
+    ...initialData,
+    publisherId: normalizedPublisherId || ""
+  });
   const {id} = useParams()
   const [publishers, setPublishers] = useState([]);
   const [loading, setLoading] = useState(false);
