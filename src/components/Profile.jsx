@@ -60,6 +60,8 @@ function Profile() {
     const handleLogout = () => {
       // 🧹 Clear storage
       localStorage.removeItem("id");
+      localStorage.removeItem('role');
+      localStorage.clear()
       //localStorage.removeItem("token"); // if you use JWT later
 
       // 🚀 Redirect to login type page
