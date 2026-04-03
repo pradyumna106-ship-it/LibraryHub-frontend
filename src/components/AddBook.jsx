@@ -4,6 +4,19 @@ import { addBook } from "../api/bookApi";
 import { useNavigate } from "react-router";
 
 function AddBook() {
+  const categoryOptions = [
+    "Fiction",
+    "Non-Fiction",
+    "Science",
+    "Technology",
+    "History",
+    "Biography",
+    "Fantasy",
+    "Romance",
+    "Mystery",
+    "Academic",
+  ];
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -103,14 +116,20 @@ function AddBook() {
           required
         />
 
-        <input
+        <select
           name="category"
           value={formData.category}
           onChange={handleChange}
-          placeholder="Category"
           className="w-full border px-3 py-2 rounded"
           required
-        />
+        >
+          <option value="">Select Category</option>
+          {categoryOptions.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
 
         <input
           name="price"
