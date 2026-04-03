@@ -3,6 +3,20 @@ import { Bell, X, Check, AlertCircle, Info, CheckCircle } from "lucide-react";
 function NotificationPanel({ notifications, onClose, onMarkAsRead, onMarkAllAsRead }) {
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  const formatTime = (notification) => {
+    if (notification.time) return notification.time;
+    if (!notification.createdAt) return "Just now";
+
+    const diffMs = Date.now() - new Date(notification.createdAt).getTime();
+    const minutes = Math.floor(diffMs / (1000 * 60));
+    if (minutes < 1) return "Just now";
+    if (minutes < 60) return `${minutes} min ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  };
+
   const getNotificationIcon = (type) => {
     switch (type) {
       case "overdue":
@@ -63,11 +77,11 @@ function NotificationPanel({ notifications, onClose, onMarkAsRead, onMarkAllAsRe
           <div>
             {notifications.map((notification) => (
               <div
-                key={notification.id}
+                key={notification._id || notification.id}
                 className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${
                   !notification.read ? "bg-blue-50" : ""
                 }`}
-                onClick={() => onMarkAsRead(notification.id)}
+                onClick={() => onMarkAsRead(notification._id || notification.id)}
               >
                 <div className="flex gap-3">
                   <div className="shrink-0 pt-1">
@@ -85,7 +99,7 @@ function NotificationPanel({ notifications, onClose, onMarkAsRead, onMarkAllAsRe
                     <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                       {notification.message}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1">{notification.time}</p>
+                    <p className="text-xs text-gray-400 mt-1">{formatTime(notification)}</p>
                   </div>
                 </div>
               </div>

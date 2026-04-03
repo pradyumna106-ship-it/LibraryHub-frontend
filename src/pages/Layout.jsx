@@ -1,10 +1,16 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar.jsx";
 import Header from "../components/Header.jsx";
 import { notifications as notificationsData } from "../data/mockData.js";
 import NotificationPanel from "../components/NotificationPanel.jsx";
 import img from "../assets/logo.webp";
+import {
+  getNotifications as fetchNotificationsApi,
+  markAllNotificationsAsRead as markAllNotificationsAsReadApi,
+  markNotificationAsRead as markNotificationAsReadApi,
+} from "../api/notificationApi.js";
+
 function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,14 +26,48 @@ function Layout() {
 
 const isActive = (path) => location.pathname === path;
 
-  const markAsRead = (id) => {
-    setNotifications(notifications.map(n => 
-      n.id === id ? { ...n, read: true } : n
-    ));
+  const toBackendRole = () => {
+    const role = localStorage.getItem("role") || "admin";
+    return role === "admin" ? "Admin" : "Member";
   };
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  const loadNotifications = async () => {
+    try {
+      const role = toBackendRole();
+      const userId = localStorage.getItem("id");
+      const res = await fetchNotificationsApi(role, userId);
+      setNotifications(res.data || []);
+    } catch (error) {
+      console.error("Failed to load notifications:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadNotifications();
+  }, []);
+
+  const markAsRead = async (id) => {
+    try {
+      await markNotificationAsReadApi(id);
+      setNotifications((prev) =>
+        prev.map((n) =>
+          (n._id || n.id) === id ? { ...n, read: true } : n
+        )
+      );
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const role = toBackendRole();
+      const userId = localStorage.getItem("id");
+      await markAllNotificationsAsReadApi(role, userId);
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
+    }
   };
 
   const menuItems = [

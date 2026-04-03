@@ -26,14 +26,19 @@ export default function Header({
         onClick={handleNavByRole}
       />
       <div className="flex items-center bg-white border rounded-full px-4 py-2 w-[300px]">
-          <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onClick={() => handleNavByRole}
-            className="flex-1 outline-none bg-transparent"
-            placeholder="Search books (title/author/publisher)..."
-          />
-          <Search size={16} />
+        <input
+          value={searchQuery}
+          onFocus={handleNavByRole}
+          onChange={(e) => {
+            if (!searchQuery) {
+              handleNavByRole();
+            }
+            setSearchQuery(e.target.value);
+          }}
+          className="flex-1 outline-none bg-transparent"
+          placeholder="Search books (title/author/publisher)..."
+        />
+        <Search size={16} />
       </div>
       <div className="flex items-center gap-4">
         <button onClick={() => setShowNotifications(prev => !prev)} className="relative">
