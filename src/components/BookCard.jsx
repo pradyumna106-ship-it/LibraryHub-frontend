@@ -2,9 +2,9 @@ import { Bookmark } from 'lucide-react';
 
 function BookCard({ book, onBorrow, onBookmark, myBooks=[],borrowRequests=[]}) {
   const isBookmarked = myBooks.some((b) => b._id === book._id);
-  const request = borrowRequests.find(
-    (req) => req.bookId === book._id
-  );
+  const request = Array.isArray(borrowRequests)
+  ? borrowRequests.find(req => req.bookId === book._id)
+  : null;
    const isPending = request?.status === "Pending";
    const isAccepted = request?.status === "Accepted";
    const isCompleted = request?.status === "Completed"

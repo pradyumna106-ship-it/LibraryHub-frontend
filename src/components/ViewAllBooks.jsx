@@ -44,7 +44,7 @@ function ViewAllBooks() {
             console.error(myBooksRes.data?.message);
           }
           if (borrowRequestRes.status === 200) {
-            setBorrowRequests(borrowRequestRes.data)
+            setBorrowRequests(borrowRequestRes.data?.data || [])
           } else {
             console.error(borrowRequestRes.data?.message)
           }

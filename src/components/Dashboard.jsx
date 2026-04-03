@@ -25,7 +25,7 @@ function Dashboard() {
         console.log("Stats:", statsRes);
 
         // ✅ Set data
-        setBorrowedBooks(borrowRes.data.data);
+        setBorrowedBooks(borrowRes.data);
         setDashboardStats(statsRes.data);
 
       } catch (error) {

@@ -1,7 +1,7 @@
 //import { borrowedBooks } from "../data/mockData.js";
 
 import { useEffect, useState } from "react";
-import { borrowedForOneMember } from "../api/transactionApi.js";
+import { borrowedForOneMember, renewBook, returnBook } from "../api/transactionApi.js";
 function BorrowedBooks() {
   const memberId = 	localStorage.getItem('id')||'69c28ca4b067e752b9d87135'
   const [borrowedBooks, setBorrowedBooks] = useState([]);
@@ -9,10 +9,58 @@ function BorrowedBooks() {
     async function loadBorrowedBooks() {
       const res = await borrowedForOneMember(memberId);
       console.log(res);
-      setBorrowedBooks(res.data.data);
+      setBorrowedBooks(res.data);
     }
     loadBorrowedBooks()
+    
   },[]);
+  const handleRenew = async (transactionId) => {
+    try {
+      const res = await renewBook(transactionId);
+      console.log(res);
+
+      // ✅ Update UI instantly
+      setBorrowedBooks(prev =>
+        prev.map(book =>
+          book._id === transactionId
+            ? {
+                ...book,
+                dueDate: res.data.dueDate, // updated date from backend
+              }
+            : book
+        )
+      );
+
+      alert("Book renewed successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to renew book");
+    }
+  };
+  const handleReturn = async (transactionId) => {
+    try {
+      const res = await returnBook(transactionId);
+      console.log(res);
+
+      // ✅ Update UI instantly
+      setBorrowedBooks(prev =>
+        prev.map(book =>
+          book._id === transactionId
+            ? {
+                ...book,
+                status: "Returned",
+                returnDate: new Date().toISOString(),
+              }
+            : book
+        )
+      );
+
+      alert("Book returned successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to return book");
+    }
+  };
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Borrowed Books</h1>
@@ -32,36 +80,63 @@ function BorrowedBooks() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {borrowedBooks.map((book) => (
-                <tr key={book.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 font-['Inter'] text-[15px] text-gray-900">{book.title}</td>
-                  <td className="px-6 py-4 font-['Inter'] text-[15px] text-gray-700">{book.author}</td>
-                  <td className="px-6 py-4 font-['Inter'] text-[15px] text-gray-700">{book.borrowDate}</td>
-                  <td className="px-6 py-4 font-['Inter'] text-[15px] text-gray-700">{book.dueDate}</td>
+              {borrowedBooks.map((book, index) => (
+                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                  
+                  <td className="px-6 py-4">{book.title}</td>
+                  
+                  <td className="px-6 py-4">{book.author}</td>
+                  
+                  {/* Format Date */}
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                      book.status === "Active" 
-                        ? "bg-green-100 text-green-800" 
-                        : "bg-red-100 text-red-800"
+                    {new Date(book.issueDate).toLocaleDateString()}
+                  </td>
+
+                  {/* Return Date */}
+                  <td className="px-6 py-4">
+                    {book.dueDate 
+                      ? new Date(book.dueDate).toLocaleDateString() 
+                      : "Not Returned"}
+                  </td>
+
+                  {/* Status */}
+                  <td className="px-6 py-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      book.status === "Issued"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : book.status === "Returned"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
                     }`}>
                       {book.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-['Inter'] text-[15px] text-gray-700">
-                    <span className={book.fine !== "$0" ? "text-red-600 font-semibold" : ""}>
-                      {book.fine}
-                    </span>
+
+                  {/* Fine (optional fallback) */}
+                  <td className="px-6 py-4">
+                    {book.fineAmount ? book.fineAmount : "₹0"}
                   </td>
+
+                  {/* Actions */}
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
-                      <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm transition-colors">
+                      <button
+                        disabled={book.status !== "Issued"}
+                        onClick={() => handleRenew(book._id)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm disabled:bg-gray-400"
+                      >
                         Renew
                       </button>
-                      <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm transition-colors">
+                      <button
+                        disabled={book.status !== "Issued"}
+                        onClick={() => handleReturn(book._id)}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm disabled:bg-gray-400"
+                      >
                         Return
                       </button>
                     </div>
                   </td>
+
                 </tr>
               ))}
             </tbody>

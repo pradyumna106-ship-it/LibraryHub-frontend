@@ -44,3 +44,10 @@ export const getTransactionsWithNameTitle = () =>
 
 export const getTransactionsHistory = () =>
   API.get("/transaction/history");
+
+export const renewBook = (id) =>
+  API.put(`/transaction/renew/${id}`);
+
+// Return Book
+export const returnBook = (id) =>
+  API.put(`/transaction/return/${id}`);
