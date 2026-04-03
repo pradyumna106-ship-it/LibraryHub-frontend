@@ -29,6 +29,7 @@ export default function Header({
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onClick={() => handleNavByRole}
             className="flex-1 outline-none bg-transparent"
             placeholder="Search books (title/author/publisher)..."
           />
