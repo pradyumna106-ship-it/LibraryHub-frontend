@@ -46,6 +46,12 @@ const isActive = (path) => location.pathname === path;
     loadNotifications();
   }, []);
 
+  useEffect(() => {
+    if (showNotifications) {
+      loadNotifications();
+    }
+  }, [showNotifications]);
+
   const markAsRead = async (id) => {
     try {
       await markNotificationAsReadApi(id);

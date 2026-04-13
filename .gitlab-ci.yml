@@ -1,0 +1,6 @@
+run_tests:
+  image: node:25-alpine3.22
+  before_script:
+    - apt-get update && apt-get install make
+  script:
+    - make test

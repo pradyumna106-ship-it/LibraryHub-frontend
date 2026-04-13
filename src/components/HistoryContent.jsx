@@ -1,5 +1,5 @@
 import { useState,  useMemo, useEffect } from 'react';
-import { Search, Calendar, Filter, ChevronDown, MoreVertical } from 'lucide-react';
+import { Search, Calendar, Filter, ChevronDown, MoreVertical, Download } from 'lucide-react';
 import { getTransactionsHistory } from '../api/transactionApi';
 
 const HistoryContent = () => {
@@ -63,6 +63,34 @@ const HistoryContent = () => {
     });
   };
 
+  const handleExport = () => {
+    const headers = ["Member Name", "Book", "Issue Date", "Return Date", "Status"];
+
+    const rows = filteredData.map((item) => [
+      item.memberName || "",
+      item.stock || item.book || "",
+      item.issueDate ? formatDate(item.issueDate) : "-",
+      item.returnDate ? formatDate(item.returnDate) : "-",
+      item.status || "",
+    ]);
+
+    const escapeCsv = (value) => `"${String(value).replace(/"/g, '""')}"`;
+    const csvContent = [
+      headers.map(escapeCsv).join(","),
+      ...rows.map((row) => row.map(escapeCsv).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `admin-history-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto">
       {/* Filters Row */}
@@ -107,11 +135,21 @@ const HistoryContent = () => {
           />
         </div>
 
-        {/* Filter Button */}
-        <button className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all font-medium flex items-center gap-2 shadow-lg">
-          <Filter className="h-4 w-4" />
-          Filters
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Filter Button */}
+          <button className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all font-medium flex items-center gap-2 shadow-lg">
+            <Filter className="h-4 w-4" />
+            Filters
+          </button>
+
+          <button
+            onClick={handleExport}
+            className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all font-medium flex items-center gap-2 shadow-lg"
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </button>
+        </div>
       </div>
 
       {/* Table */}
