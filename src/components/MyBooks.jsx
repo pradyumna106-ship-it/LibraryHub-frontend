@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import BookCard from "./BookCard.jsx";
 import { getMyBooks } from "../api/memberApi.js"; 
-import { getBookById } from "../api/bookAPI.js";
+import { getBookById } from "../api/bookApi.js";
 function MyBooks() {
     const id = localStorage.getItem('id')||"69c28ca4b067e752b9d87135"
     //const [bookIds,setBookIds] = useState([])

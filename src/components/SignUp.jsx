@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { User, Mail, Phone, MapPin, BookOpen, Users, Lock } from 'lucide-react';
-import { InternalServerError } from '../../../Backend/src/exception/exception';
 import { addMember } from '../api/memberApi';
 import { useNavigate } from 'react-router';
 

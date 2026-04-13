@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { User, Mail, Phone, MapPin, BookOpen, Users, Lock } from 'lucide-react';
-import { InternalServerError } from '../../../Backend/src/exception/exception';
-import { addMember } from '../api/memberApi';
+import { updateMember } from '../api/memberApi';
 import { useLocation, useNavigate, useParams } from 'react-router';
 
 const EditMember = () => {
@@ -101,7 +100,7 @@ const EditMember = () => {
               for (let pair of formPayload.entries()) {
                     console.log(pair[0], pair[1]);
                   }
-              const response = await addMember(formPayload);
+              const response = await updateMember(id,formPayload);
 
               if (response.ok) {
                 alert("Sign up successful!");
