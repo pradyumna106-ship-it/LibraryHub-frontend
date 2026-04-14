@@ -10,9 +10,13 @@ const API = axios.create({
 });
 
 // ✅ Member Login
-export const memberLogin = (data) => axios.post("https://library-hub-backend-three.vercel.app/member/login", data);
-
+export const memberLogin = (data) => axios.post(
+  "https://library-hub-backend-three.vercel.app/api/v1/member/login",
+  data
+);
 // ✅ Admin Login
-export const adminLogin = (data) => axios.post("https://library-hub-backend-three.vercel.app/admin/login", data);
-
+export const adminLogin = (data) => axios.post(
+  "https://library-hub-backend-three.vercel.app/api/v1/admin/login",
+  data
+);
 export default API;
