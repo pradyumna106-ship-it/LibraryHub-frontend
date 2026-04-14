@@ -6,12 +6,12 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 const EditMember = () => {
     const { id } = useParams();
     const location = useLocation();
-  const [formData, setFormData] = useState(location.state);
-  const [avatar, setAvatar] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [showCamera, setShowCamera] = useState(false);
-  const navigate = useNavigate()
-  const [errors, setErrors] = useState({});
+    const [formData, setFormData] = useState(location.state);
+    const [avatar, setAvatar] = useState(null);
+    const [preview, setPreview] = useState(null);
+    const [showCamera, setShowCamera] = useState(false);
+    const navigate = useNavigate()
+    const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;

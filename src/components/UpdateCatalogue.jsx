@@ -3,30 +3,40 @@ import { Edit3, Trash2, Eye, Loader2, BookOpen } from 'lucide-react';
 import { deleteBook, getBooks } from "../api/bookApi";
 import { getPublishers } from "../api/publisherApi";
 import { useNavigate } from "react-router";
+import { useOutletContext } from "react-router";
 
 function UpdateCatalogue() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate()
+  const { searchQuery } = useOutletContext();
 
   // ✅ Fixed: Import your API function
   // import { fetchBooks, deleteBook, updateBook } from '../api/bookApi';
-
- useEffect(() => {
+    const q = (searchQuery || "").trim().toLowerCase();
+    const filteredBooks = books.filter((book) => {
+      if (!q) return true;
+      const publisherName =
+        typeof book.publisherId === "object" && book.publisherId !== null
+          ? book.publisherId.name
+          : book.publisherId;
+      const titleMatch = (book.title || "").toLowerCase().includes(q);
+      const authorMatch = (book.author || "").toLowerCase().includes(q);
+      const publisherMatch = (publisherName || "").toString().toLowerCase().includes(q);
+      return titleMatch || authorMatch || publisherMatch;
+    });
+  useEffect(() => {
   async function fetchBooksData() {
     try {
       setLoading(true);
       setError(null);
-
       const [bookRes, publisherRes] = await Promise.all([
         getBooks(),
         getPublishers()
       ]);
-
       const books = bookRes.data || [];
       const publishers = publisherRes.data || [];
-
       // ✅ Merge books with publisher name
       const formattedBooks = books.map((book) => {
         // `book.publisherId` might be either an ObjectId string or a populated object.
@@ -34,18 +44,14 @@ function UpdateCatalogue() {
           typeof book.publisherId === "object" && book.publisherId !== null
             ? book.publisherId._id
             : book.publisherId;
-
         const publisher = publishers.find((pub) => pub._id === publisherId);
-
         return {
           ...book,
           publisherId,
           publisher: book.publisherId?.name || (publisher ? publisher.name : "Unknown")
         };
       });
-
       setBooks(formattedBooks);
-
     } catch (error) {
       console.error('Fetch error:', error);
       setError('Failed to load books');
@@ -53,10 +59,8 @@ function UpdateCatalogue() {
       setLoading(false);
     }
   }
-
   fetchBooksData();
 }, []);
-
   const handleDelete = async (bookId) => {
     if (!confirm('Are you sure you want to delete this book?')) return;
     
@@ -70,13 +74,11 @@ function UpdateCatalogue() {
       alert('Failed to delete book',error);
     }
   };
-
   const handleEdit = async (bookId,book) => {
     // Open modal or navigate to edit page
     navigate(`/edit-book/${bookId}`, { state: book });
     console.log('Edit book:', book);
   };
-
   if (loading) {
     return (
       <div className="p-6">
@@ -154,7 +156,7 @@ function UpdateCatalogue() {
 
             {/* Body */}
             <tbody className="divide-y divide-gray-100">
-              {books.length === 0 ? (
+              {filteredBooks.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                     <BookOpen className="h-16 w-16 mx-auto mb-4 opacity-40" />
@@ -162,7 +164,7 @@ function UpdateCatalogue() {
                   </td>
                 </tr>
               ) : (
-                books.map((book, index) => (
+                filteredBooks.map((book, index) => (
                   <tr key={book._id || index} className="hover:bg-gray-50 transition-colors group">
                     <td className="px-6 py-4 font-semibold text-gray-900 group-hover:text-blue-600">
                       {book.title}

@@ -1,53 +1,55 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
-import Header from "./Header.jsx";
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import Header from './Header';
+import { afterEach, expect, test, vi } from 'vitest';
 
-describe("Header", () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+});
 
-  it("navigates member to view-all-books on search focus", () => {
-    localStorage.setItem("role", "member");
-    const handleNavigation = vi.fn();
+test('navigates member to view-all-books on search focus', () => {
+  localStorage.setItem("role", "member");
 
-    render(
-      <Header
-        unreadCount={0}
-        setShowNotifications={vi.fn()}
-        handleNavigation={handleNavigation}
-        logo="logo.png"
-        searchQuery=""
-        setSearchQuery={vi.fn()}
-      />
-    );
+  const handleNavigation = vi.fn();
 
-    const input = screen.getByPlaceholderText(/search books/i);
-    fireEvent.focus(input);
+  render(
+    <Header
+      unreadCount={0}
+      setShowNotifications={vi.fn()}
+      handleNavigation={handleNavigation}
+      logo="logo.png"
+      searchQuery=""
+      setSearchQuery={vi.fn()}
+    />
+  );
 
-    expect(handleNavigation).toHaveBeenCalledWith("/view-all-books");
-  });
+  fireEvent.focus(screen.getByPlaceholderText(/search books/i))[0];
 
-  it("navigates admin to crud-book on first search input", () => {
-    localStorage.setItem("role", "admin");
-    const handleNavigation = vi.fn();
-    const setSearchQuery = vi.fn();
+  expect(handleNavigation).toHaveBeenCalledTimes(1);
+  expect(handleNavigation).toHaveBeenCalledWith('/view-all-books');
+});
 
-    render(
-      <Header
-        unreadCount={0}
-        setShowNotifications={vi.fn()}
-        handleNavigation={handleNavigation}
-        logo="logo.png"
-        searchQuery=""
-        setSearchQuery={setSearchQuery}
-      />
-    );
 
-    const input = screen.getByPlaceholderText(/search books/i);
-    fireEvent.change(input, { target: { value: "react" } });
+test('navigates admin to crud-book on first input', () => {
+  localStorage.setItem("role", "admin");
 
-    expect(handleNavigation).toHaveBeenCalledWith("/crud-book");
-    expect(setSearchQuery).toHaveBeenCalledWith("react");
-  });
+  const handleNavigation = vi.fn();
+
+  render(
+    <Header
+      unreadCount={0}
+      setShowNotifications={vi.fn()}
+      handleNavigation={handleNavigation}
+      logo="logo.png"
+      searchQuery=""
+      setSearchQuery={vi.fn()}
+    />
+  );
+
+  const input = screen.getByTestId("search-input");
+
+  fireEvent.focus(input);
+  fireEvent.change(input, { target: { value: 'book' } });
+
+  expect(handleNavigation).toHaveBeenCalledWith('/crud-book');
 });

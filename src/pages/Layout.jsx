@@ -43,14 +43,11 @@ const isActive = (path) => location.pathname === path;
   };
 
   useEffect(() => {
-    loadNotifications();
+    const fetchData = async () => {
+      await loadNotifications();
+    };
+    fetchData();
   }, []);
-
-  useEffect(() => {
-    if (showNotifications) {
-      loadNotifications();
-    }
-  }, [showNotifications]);
 
   const markAsRead = async (id) => {
     try {

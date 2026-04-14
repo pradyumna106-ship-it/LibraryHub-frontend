@@ -1,13 +1,13 @@
 import { Bell, X, Check, AlertCircle, Info, CheckCircle } from "lucide-react";
 
 function NotificationPanel({ notifications, onClose, onMarkAsRead, onMarkAllAsRead }) {
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  const formatTime = (notification) => {
+    const unreadCount = notifications.filter(n => !n.read).length;
+    const formatTime = (notification) => {
     if (notification.time) return notification.time;
     if (!notification.createdAt) return "Just now";
-
-    const diffMs = Date.now() - new Date(notification.createdAt).getTime();
+    // eslint-disable-next-line react-hooks/purity
+    const now = Date.now();
+    const diffMs = now - new Date(notification.createdAt).getTime();
     const minutes = Math.floor(diffMs / (1000 * 60));
     if (minutes < 1) return "Just now";
     if (minutes < 60) return `${minutes} min ago`;
