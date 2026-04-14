@@ -16,8 +16,7 @@ export const adminLogin = (data) => {
 //   });
 // };
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api/v1";
+const API_BASE_URL =  "https://vercel.com/j-pradyumnas-projects/library-hub-backend/6gyogLm29oeeoD2uYRNkQtgzL64E/api/v1";
 
 const API = axios.create({
   baseURL: API_BASE_URL,
