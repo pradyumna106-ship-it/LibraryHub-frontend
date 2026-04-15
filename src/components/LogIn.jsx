@@ -27,6 +27,8 @@ function LogIn() {
         console.log(res)
         if(res.status === 200){
           localStorage.setItem('id',res.data.admin.id)
+          localStorage.setItem('email',email)
+          localStorage.setItem('password',password)
           localStorage.setItem('role',role);
           navigate("/admin-dashboard");
         }
@@ -38,6 +40,8 @@ function LogIn() {
         console.log(res)
         if(res.status === 200){
           localStorage.setItem('id',res.data.member.id)
+          localStorage.setItem('email',email)
+          localStorage.setItem('password',password)
           localStorage.setItem('role',role);
           navigate("/dashboard");
         }
