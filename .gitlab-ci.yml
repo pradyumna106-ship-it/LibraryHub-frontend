@@ -8,9 +8,9 @@ default:
   interruptible: true
 
 variables:
-  FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend
-  DOCKER_TLS_CERTDIR: "/certs"
-  DOCKER_DRIVER: overlay2
+  IMAGE_NAME: pradyumnajkumar/library_hub
+  IMAGE_TAG: libraryhub-frontend
+  
 
 frontend_test:
   stage: test
@@ -28,20 +28,18 @@ frontend_build:
     - npm run lint
     - npm run build
 
-frontend_docker_build_push:
+build_image:
   stage: package
-  image: docker:27.1.1
+  image: docker:29.4.0
   services:
-    - docker:27.1.1-dind
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - docker:29.4.0-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - echo "$PASSWORD" | docker login -u "$USER_NAME" --password-stdin
   script:
-    - docker build -t "$FRONTEND_IMAGE:$CI_COMMIT_SHA" -f Dockerfile .
-    - docker tag "$FRONTEND_IMAGE:$CI_COMMIT_SHA" "$FRONTEND_IMAGE:latest"
-    - docker push "$FRONTEND_IMAGE:$CI_COMMIT_SHA"
-    - docker push "$FRONTEND_IMAGE:latest"
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker push $IMAGE_NAME:$IMAGE_TAG
 
 deploy:
   stage: deploy
