@@ -61,6 +61,8 @@ function Profile() {
       // 🧹 Clear storage
       localStorage.removeItem("id");
       localStorage.removeItem('role');
+      localStorage.removeItem('email');
+      localStorage.removeItem('password');
       localStorage.clear()
       //localStorage.removeItem("token"); // if you use JWT later
 
