@@ -10,7 +10,6 @@ function Profile() {
   // const [userProfile, setUserProfile] = useState({});
   const [profile, setProfile] = useState({});
   const [editedProfile, setEditedProfile] = useState({});
-  const [generatedAvatar, setGeneratedAvatar] = useState("");
   const navigate = useNavigate()
   const role = localStorage.getItem('role')
   const id = localStorage.getItem('id');
@@ -103,13 +102,7 @@ function Profile() {
   };
 
   const currentProfile = isEditing ? editedProfile : profile;
-  useEffect(() => {
-  if (profile && !profile.avatar) {
-    const img = base64img(128, 128, 4);
-    setGeneratedAvatar(img);
-  }
-}, [profile]);
-
+  const displayAvatar = currentProfile?.avatar || base64img(128, 128, 4);
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
@@ -156,7 +149,7 @@ function Profile() {
               {/* Avatar */}
                 {avatar ? (
                     <img 
-                      src={currentProfile.avatar || generatedAvatar} 
+                      src={displayAvatar} 
                       alt="User avatar"
                       className="w-32 h-32 rounded-full object-cover"
                     />
