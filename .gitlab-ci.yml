@@ -10,7 +10,6 @@ default:
 variables:
   IMAGE_NAME: pradyumnajkumar/library_hub
   IMAGE_TAG: libraryhub-frontend
-  
 
 frontend_test:
   stage: test
@@ -27,6 +26,10 @@ frontend_build:
     - npm ci
     - npm run lint
     - npm run build
+  artifacts:
+    paths:
+      - dist/  # Pass build to deploy if needed
+    expire_in: 1 hour
 
 build_image:
   stage: package
@@ -40,8 +43,19 @@ build_image:
   script:
     - docker build -t $IMAGE_NAME:$IMAGE_TAG .
     - docker push $IMAGE_NAME:$IMAGE_TAG
+  dependencies:
+    - frontend_build  # Ensures build artifacts available
 
 deploy:
   stage: deploy
+  image: node:20-alpine  # For Vercel CLI
+  needs: ["build_image"]  # Explicitly wait for package
+  environment:
+    name: production
+    url: https://library-hub-frontend-snowy.vercel.app  # Your Vercel URL
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"  # Or $CI_MERGE_REQUEST_IID for previews
+  when: manual  # Only deploy after manual approval in GitLab UI
   script:
-    - echo "Deploy step here (e.g. SSH to server and pull Docker image)"
+    - npm i -g vercel
+    - vercel --prod --token $VERCEL_TOKEN --confirm  # Deploys to production
