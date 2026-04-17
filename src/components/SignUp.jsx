@@ -46,15 +46,14 @@ const SignUp = () => {
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0);
 
-    // ✅ Convert to BASE64 (STRING)
-    const base64Image = canvas.toDataURL("image/jpeg");
+    // Convert to file instead of base64
+    canvas.toBlob((blob) => {
+      const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
 
-    setFormData(prev => ({
-      ...prev,
-      avatar: base64Image   // ✅ ONLY STRING
-    }));
+      setAvatar(file);
+      setPreview(URL.createObjectURL(file));
+    }, "image/jpeg");
 
-    setPreview(base64Image);
     setShowCamera(false);
   };
     const startCamera = async () => {
