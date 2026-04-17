@@ -11,38 +11,37 @@ function Profile() {
   const [editedProfile, setEditedProfile] = useState({});
   const navigate = useNavigate()
   const role = localStorage.getItem('role')
+  const id = localStorage.getItem('id');
   useEffect(() => {
-  const loadProfile = async () => {
-    const id = localStorage.getItem('id');
-      // ❌ if no id → redirect
-      if (!id || id === "null") {
-        console.log("No ID found, redirecting...",id);
-        return;
-      }
-      if (role === "member") {
-        const res = await getMemberById(id);
-        console.table(res.data);
-        const data = res.data?.data || res.data; // handle both cases
-        //setUserProfile(data);
-        setProfile(data);          // ✅ IMPORTANT
-        setEditedProfile(data);
-      } else {
-        const res = await getAdminById(id);
-        console.table(res.data);
-        const data = res.data?.data || res.data; // handle both cases
-        //setUserProfile(data);
-        setProfile(data);          // ✅ IMPORTANT
-        setEditedProfile(data);
-      }
-        // ✅ IMPORTANT
-  };
-
+      const loadProfile = async () => {
+          // ❌ if no id → redirect
+          if (!id || id === "null") {
+            console.log("No ID found, redirecting...",id);
+            return;
+          }
+          if (role === "member") {
+            const res = await getMemberById(id);
+            console.table(res.data);
+            const data = res.data?.data || res.data; // handle both cases
+            //setUserProfile(data);
+            setProfile(data);          // ✅ IMPORTANT
+            setEditedProfile(data);
+          } else {
+            const res = await getAdminById(id);
+            console.table(res.data);
+            const data = res.data?.data || res.data; // handle both cases
+            //setUserProfile(data);
+            setProfile(data);          // ✅ IMPORTANT
+            setEditedProfile(data);
+          }
+            // ✅ IMPORTANT
+      };
       loadProfile();
-    }, []);
+    }, [id]);
       const handleEdit = () => {
-      setIsEditing(true);
-      setEditedProfile(profile); // ok AFTER fix above
-    }
+        setIsEditing(true);
+        setEditedProfile(profile); // ok AFTER fix above
+      }
     const departments = [
       "Engineering",
       "Computer Science (CS)",
