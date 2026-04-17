@@ -4,11 +4,13 @@ import { User, Mail, Phone, MapPin, Calendar, BookOpen, DollarSign, Edit2, Save,
 import { updateMember,getMemberById } from "../api/memberApi";
 import {useNavigate} from "react-router"
 import { getAdminById, updateAdmin } from "../api/adminApi";
+import { base64img } from "../utils/base64img"; // adjust path
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   // const [userProfile, setUserProfile] = useState({});
   const [profile, setProfile] = useState({});
   const [editedProfile, setEditedProfile] = useState({});
+  const [generatedAvatar, setGeneratedAvatar] = useState("");
   const navigate = useNavigate()
   const role = localStorage.getItem('role')
   const id = localStorage.getItem('id');
@@ -101,6 +103,12 @@ function Profile() {
   };
 
   const currentProfile = isEditing ? editedProfile : profile;
+  useEffect(() => {
+  if (profile && !profile.avatar) {
+    const img = base64img(128, 128, 4);
+    setGeneratedAvatar(img);
+  }
+}, [profile]);
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -148,8 +156,8 @@ function Profile() {
               {/* Avatar */}
                 {avatar ? (
                     <img 
-                      src={currentProfile.avatar} 
-                      alt="User avatar" 
+                      src={currentProfile.avatar || generatedAvatar} 
+                      alt="User avatar"
                       className="w-32 h-32 rounded-full object-cover"
                     />
                   ) : (
