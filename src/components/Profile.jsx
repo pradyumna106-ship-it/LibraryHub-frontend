@@ -147,7 +147,7 @@ function Profile() {
           <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
             <div className="flex flex-col items-center">
               {/* Avatar */}
-                {avatar ? (
+                {displayAvatar ? (
                     <img 
                       src={displayAvatar} 
                       alt="User avatar"
@@ -158,7 +158,7 @@ function Profile() {
                   )}
               
               <h2 className="text-2xl font-bold text-gray-800 mb-1">{currentProfile.name}</h2>
-              <p className="text-gray-500 mb-4">Member ID: {currentProfile.id}</p>
+              <p className="text-gray-500 mb-4">Member ID: {currentProfile._id}</p>
               
               <div className="w-full pt-4 border-t border-gray-200">
                 <div className="flex items-center gap-2 text-gray-600 mb-2">
