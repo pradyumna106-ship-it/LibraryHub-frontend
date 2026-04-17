@@ -4,7 +4,7 @@ import { User, Mail, Phone, MapPin, Calendar, BookOpen, DollarSign, Edit2, Save,
 import { updateMember,getMemberById } from "../api/memberApi";
 import {useNavigate} from "react-router"
 import { getAdminById, updateAdmin } from "../api/adminApi";
-import { base64img } from "../utils/base64img"; // adjust path
+import { base64img } from "../utils/imagedisplay.js"; // adjust path
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   // const [userProfile, setUserProfile] = useState({});
