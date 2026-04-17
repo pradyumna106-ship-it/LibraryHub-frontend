@@ -147,9 +147,15 @@ function Profile() {
           <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
             <div className="flex flex-col items-center">
               {/* Avatar */}
-              <div className="w-32 h-32 bg-gradient-to-br from-[#93A5CF] to-[#B4ECE9] rounded-full flex items-center justify-center mb-4">
-                <User className="w-16 h-16 text-white" />
-              </div>
+                {avatar ? (
+                    <img 
+                      src={avatar} 
+                      alt="User avatar" 
+                      className="w-32 h-32 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 text-white">User</div>
+                  )}
               
               <h2 className="text-2xl font-bold text-gray-800 mb-1">{currentProfile.name}</h2>
               <p className="text-gray-500 mb-4">Member ID: {currentProfile.id}</p>
