@@ -149,7 +149,7 @@ function Profile() {
               {/* Avatar */}
                 {avatar ? (
                     <img 
-                      src={avatar} 
+                      src={currentProfile.avatar} 
                       alt="User avatar" 
                       className="w-32 h-32 rounded-full object-cover"
                     />
