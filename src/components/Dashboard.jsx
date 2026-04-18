@@ -2,10 +2,10 @@ import { useState,useEffect } from "react";
 import { borrowedForOneMember,getDashboardStats } from "../api/transactionApi.js";
 
 let cacheDashboard = {}
-let cacheBorrowed = null
+let cacheBorrowed = {}
 function Dashboard() {
     const [borrowedBooks, setBorrowedBooks] = useState([]);
-    const [dashboardStats, setDashboardStats] = useState(0);
+    const [dashboardStats, setDashboardStats] = useState({});
     const memberId = 	localStorage.getItem('id');
       useEffect(() => {
         async function loadDashboard() {
@@ -15,7 +15,7 @@ function Dashboard() {
               console.error("No memberId found");
               return;
             }
-            if (cacheBorrowed[memberId] && cacheBorrowed || cacheDashboard[memberId] && cacheDashboard) {
+            if (cacheBorrowed[memberId] && cacheBorrowed && cacheDashboard[memberId] && cacheDashboard) {
               setBorrowedBooks(cacheBorrowed[memberId])
               setDashboardStats(cacheDashboard[memberId])
               console.log('free cache')
@@ -31,8 +31,8 @@ function Dashboard() {
             // ✅ Set data
             setBorrowedBooks(borrowRes.data);
             setDashboardStats(statsRes.data);
-            cacheBorrowed[memberId] = borrowedBooks
-            cacheDashboard[memberId] = dashboardStats
+            cacheBorrowed[memberId] = borrowRes.data
+            cacheDashboard[memberId] = statsRes.data
           } catch (error) {
             console.error("Error loading dashboard:", error);
           }
