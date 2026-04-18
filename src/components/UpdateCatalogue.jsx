@@ -5,7 +5,7 @@ import { getPublishers } from "../api/publisherApi";
 import { useNavigate, useOutletContext } from "react-router";
 
 // ✅ Cache outside component
-let cache = [];
+let cache = null;
 
 function UpdateCatalogue() {
   const [books, setBooks] = useState([]);

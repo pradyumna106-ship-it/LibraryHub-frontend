@@ -1,7 +1,7 @@
 import { useState,  useMemo, useEffect } from 'react';
 import { Search, Calendar, Filter, ChevronDown, MoreVertical, Download } from 'lucide-react';
 import { getTransactionsHistory } from '../api/transactionApi';
-let cache = [];
+let cache = null;
 const HistoryContent = () => {
   const [historyData,setHistoryData] = useState([
       { id: 1, memberName: 'John Doe', stock: 'React Crash Course', issueDate: '2026-03-15', returnDate: '2026-04-12', status: 'Issued' },

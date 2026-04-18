@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getTransactionsWithNameTitle } from "../api/transactionApi";
 
 // ✅ Outside component so it persists across renders
-let cache = [];
+let cache = null;
 
 function Transaction() {
   const [transactions, setTransactions] = useState([]);

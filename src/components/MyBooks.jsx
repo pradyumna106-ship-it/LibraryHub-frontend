@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import BookCard from "./BookCard.jsx";
 import { getMyBooks } from "../api/memberApi.js"; 
 import { getBookById } from "../api/bookApi.js";
-let cache = [];
+let cache = null;
 function MyBooks() {
     const id = localStorage.getItem('id')
     //const [bookIds,setBookIds] = useState([])

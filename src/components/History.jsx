@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getHistoryByMember } from "../api/transactionApi.js";
-let cache = [];
+let cache = null;
 function History() {
   const [historyData, setHistoryData] = useState([]);
   const memberId = 	localStorage.getItem('id');

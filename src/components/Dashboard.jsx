@@ -2,7 +2,7 @@ import { useState,useEffect } from "react";
 import { borrowedForOneMember,getDashboardStats } from "../api/transactionApi.js";
 
 let cacheDashboard = {}
-let cacheBorrowed = []
+let cacheBorrowed = null
 function Dashboard() {
     const [borrowedBooks, setBorrowedBooks] = useState([]);
     const [dashboardStats, setDashboardStats] = useState(0);

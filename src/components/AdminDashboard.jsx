@@ -4,7 +4,7 @@ import { getBookCount } from '../api/bookApi';
 import { getMemberCount } from '../api/memberApi';
 import { getIssuedCount, getTransactionsWithNameTitle } from '../api/transactionApi';
 
-let cacheIssues = [];
+let cacheIssues = null;
 let cacheDashboard = {};
 export default function AdminDashboard() {
   const [dashboardStats, setDashboardStats] = useState({
