@@ -4,8 +4,8 @@ import { getBookCount } from '../api/bookApi';
 import { getMemberCount } from '../api/memberApi';
 import { getIssuedCount, getTransactionsWithNameTitle } from '../api/transactionApi';
 
-const cacheIssues = []
-const cacheDashboard = {}
+let cacheIssues = null;
+let cacheDashboard = null;
 export default function AdminDashboard() {
   const [dashboardStats, setDashboardStats] = useState({
     totalBooks: 0,
@@ -22,7 +22,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchCounts = async () => {
         try {
-          if ((!cacheIssues || !cacheDashboard) || cacheIssues !== Issues || cacheDashboard !== dashboardStats) {
+          if (!cacheIssues || !cacheDashboard) {
               const [booksRes, membersRes, issuedRes, TransactionRes] = await Promise.all([
                 getBookCount(),
                 getMemberCount(),
@@ -42,8 +42,8 @@ export default function AdminDashboard() {
                   date: issue.issueDate
               }));
             setIssues(formated)
-            cacheIssues = [...Issues]
-            cacheDashboard = {...dashboardStats}
+            cacheIssues = Issues
+            cacheDashboard = dashboardStats
             }
             else {
               setIssues(cacheIssues)

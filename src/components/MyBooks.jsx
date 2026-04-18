@@ -11,6 +11,10 @@ function MyBooks() {
           const fetchBooks = async () => {
           try {
             // 1️⃣ Get Book IDs
+            if (cache) {
+              setMyBooks(cache)
+              return;
+            }
             const res = await getMyBooks(id);
             if (res.status !== 200) {
               console.error(res.data.message);
@@ -37,10 +41,6 @@ function MyBooks() {
             console.error("Error fetching myBooks:", error);
           }
         };
-        if (cache) {
-          setMyBooks(cache)
-          return;
-        }
         fetchBooks();
       }, []);
     

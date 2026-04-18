@@ -6,15 +6,15 @@ function History() {
   const memberId = 	localStorage.getItem('id');
     useEffect(() => {
       async function loadHistory() {
+          if (cache[memberId]) {
+            setHistoryData(cache[memberId])
+            console.log('free cache')
+            return;
+          }
         const res = await getHistoryByMember(memberId);
         console.log(res);
         setHistoryData(res.data)
         cache[memberId] = [...historyData]
-      }
-      if (cache) {
-        setHistoryData(cache[memberId])
-        console.log('free cache')
-        return;
       }
       loadHistory()
     },[]);

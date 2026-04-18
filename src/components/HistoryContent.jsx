@@ -15,15 +15,15 @@ const HistoryContent = () => {
   const [dateFilter, setDateFilter] = useState('');
       useEffect(() => {
         async function fetchAll() {
+          if (cache) {
+            setHistoryData(cache)
+            console.log('free cache')
+            return
+          }
           const res = await getTransactionsHistory();
           console.log(res)
           setHistoryData(res.data||[]);
           cache = [...historyData]
-        }
-        if (cache) {
-          setHistoryData(cache)
-          console.log('free cache')
-          return
         }
         fetchAll()
       },[]);

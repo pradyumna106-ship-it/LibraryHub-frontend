@@ -21,6 +21,10 @@ function Profile() {
                 console.log("No ID found, redirecting...",id);
                 return;
               }
+              if (cache[id]) {
+                setProfile(cache[id])
+                return
+              }
               if (role === "member") {
                 const res = await getMemberById(id);
                 console.table(res.data);
@@ -39,10 +43,6 @@ function Profile() {
                 // ✅ IMPORTANT
                 cache[id] = profile
           };
-          if (cache[id]) {
-            setProfile(cache[id])
-            return
-          }
           loadProfile();
         }, [id]);
       const handleEdit = () => {

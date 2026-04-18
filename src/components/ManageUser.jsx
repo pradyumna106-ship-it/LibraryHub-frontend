@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {getMembers} from '../api/memberApi'
 import { useNavigate } from 'react-router'
-const cache = []
+let cache = null
 function ManageUser() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -14,21 +14,21 @@ function ManageUser() {
           try {
             setLoading(true);
             setError(null);
+            if(cache) {
+              setUsers(cache)
+              return;
+            }
             // ✅ Fixed: Proper fetch + response.json()
             const res = await getMembers();  // axios
             const data = res.data;
             setUsers(Array.isArray(data) ? data : data.members || []);
             cache = users
-          } catch (error) {
-            console.error('Fetch error:', error);
-            setError('Failed to load books');
+          } catch (err) {
+            console.error(err);
+            alert('Failed to delete book');
           } finally {
             setLoading(false);
           }
-        }
-        if(cache) {
-          setUsers(cache)
-          return;
         }
         fetchBooksData();
       }, []);
