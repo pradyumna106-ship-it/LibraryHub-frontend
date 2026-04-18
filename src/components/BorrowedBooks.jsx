@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { borrowedForOneMember, renewBook, returnBook } from "../api/transactionApi.js";
 
-let cache = null;
+let cache = [];
 function BorrowedBooks() {
   const memberId = 	localStorage.getItem('id')
   const [borrowedBooks, setBorrowedBooks] = useState([]);
     useEffect(() => {
       async function loadBorrowedBooks() {
-        if (cache[memberId]) {
+        if (cache[memberId] && cache) {
             setBorrowedBooks(cache[memberId])
             console.log('free cache')
             return
@@ -19,7 +19,6 @@ function BorrowedBooks() {
         setBorrowedBooks(res.data);
         cache[memberId] = [...borrowedBooks]
       }
-      
       loadBorrowedBooks()
     },[]);
   

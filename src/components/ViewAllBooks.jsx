@@ -7,7 +7,7 @@ import { addBorrowRequest, getBorrowRequestBymemberId } from '../api/borrowReque
 import { useOutletContext } from "react-router-dom";
 
 // ✅ Cache outside component
-let cache = null;
+let cache = [];
 
 function ViewAllBooks() {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -19,7 +19,7 @@ function ViewAllBooks() {
   const { searchQuery } = useOutletContext();
 
   // ✅ Single source of truth for id
-  const id = localStorage.getItem('id') || "69c28ca4b067e752b9d87135";
+  const id = localStorage.getItem('id');
 
   const categories = ["All", ...new Set(allBooks.map(book => book.category))];
   const authors = ["All", ...new Set(allBooks.map(book => book.author))];
@@ -53,14 +53,14 @@ function ViewAllBooks() {
         if (myBooksRes.status === 200) setMyBooks(myBooksRes.data || []);
         if (borrowRequestRes.status === 200) setBorrowRequests(borrowRequestRes.data || []);
 
-        if (cache) {
+        if (cache && cache[id]) {
           setAllBooks(cache); // ✅ Use cached books
           return;
         }
 
         const booksRes = await getBooks();
         if (booksRes.status === 200) {
-          cache = booksRes.data || []; // ✅ Cache books (they're shared, not user-specific)
+          cache[id] = booksRes.data || []; // ✅ Cache books (they're shared, not user-specific)
           setAllBooks(cache);
         }
       } catch (error) {

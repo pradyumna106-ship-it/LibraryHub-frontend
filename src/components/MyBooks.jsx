@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import BookCard from "./BookCard.jsx";
 import { getMyBooks } from "../api/memberApi.js"; 
 import { getBookById } from "../api/bookApi.js";
-let cache = null;
+let cache = [];
 function MyBooks() {
     const id = localStorage.getItem('id')
     //const [bookIds,setBookIds] = useState([])
@@ -11,8 +11,8 @@ function MyBooks() {
           const fetchBooks = async () => {
           try {
             // 1️⃣ Get Book IDs
-            if (cache) {
-              setMyBooks(cache)
+            if (cache && cache[id]) {
+              setMyBooks(cache[id])
               return;
             }
             const res = await getMyBooks(id);

@@ -1,8 +1,8 @@
 import { useState,useEffect } from "react";
 import { borrowedForOneMember,getDashboardStats } from "../api/transactionApi.js";
 
-let cacheDashboard = null
-let cacheBorrowed = null
+let cacheDashboard = {}
+let cacheBorrowed = []
 function Dashboard() {
     const [borrowedBooks, setBorrowedBooks] = useState([]);
     const [dashboardStats, setDashboardStats] = useState(0);
@@ -15,7 +15,7 @@ function Dashboard() {
               console.error("No memberId found");
               return;
             }
-            if (cacheBorrowed[memberId] || cacheDashboard[memberId]) {
+            if (cacheBorrowed[memberId] && cacheBorrowed || cacheDashboard[memberId] && cacheDashboard) {
               setBorrowedBooks(cacheBorrowed[memberId])
               setDashboardStats(cacheDashboard[memberId])
               console.log('free cache')

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {getMembers} from '../api/memberApi'
 import { useNavigate } from 'react-router'
-let cache = null
+let cache = []
 function ManageUser() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);

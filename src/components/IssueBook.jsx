@@ -5,7 +5,7 @@ import { getBookById } from "../api/bookApi";
 import { addTransaction } from "../api/transactionApi";
 
 // ✅ Outside component so it persists across renders
-let cache = null;
+let cache = [];
 
 function IssueBook() {
   const [requests, setRequests] = useState([]);

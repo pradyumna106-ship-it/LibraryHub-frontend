@@ -5,7 +5,7 @@ import { getPublishers } from "../api/publisherApi";
 import { useNavigate, useOutletContext } from "react-router";
 
 // ✅ Cache outside component
-let cache = null;
+let cache = [];
 
 function UpdateCatalogue() {
   const [books, setBooks] = useState([]);
@@ -28,17 +28,16 @@ function UpdateCatalogue() {
   });
 
   useEffect(() => {
-    // ✅ Use cache if available
-    if (cache) {
-      setBooks(cache);
-      setLoading(false);
-      return;
-    }
-
     async function fetchBooksData() {
       try {
         setLoading(true);
         setError(null);
+          // ✅ Use cache if available
+        if (cache) {
+          setBooks(cache);
+          setLoading(false);
+          return;
+        }
         const [bookRes, publisherRes] = await Promise.all([
           getBooks(),
           getPublishers()
