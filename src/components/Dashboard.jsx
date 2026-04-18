@@ -1,40 +1,45 @@
 import { useState,useEffect } from "react";
 import { borrowedForOneMember,getDashboardStats } from "../api/transactionApi.js";
 
+const cacheDashboard = {}
+const cacheBorrowed = []
 function Dashboard() {
     const [borrowedBooks, setBorrowedBooks] = useState([]);
     const [dashboardStats, setDashboardStats] = useState(0);
-    useEffect(() => {
-    async function loadDashboard() {
-      try {
-        // const user = JSON.parse(localStorage.getItem("user"));
-        const memberId = 	localStorage.getItem('id')||'69c28ca4b067e752b9d87135';
+    const memberId = 	localStorage.getItem('id');
+    if ((!cacheBorrowed[memberId] || !cacheDashboard[memberId]) || (cacheBorrowed[memberId] !== borrowedBooks || cacheDashboard[memberId] !== dashboardStats)) { 
+      useEffect(() => {
+        async function loadDashboard() {
+          try {
+            // const user = JSON.parse(localStorage.getItem("user"));
+            if (!memberId) {
+              console.error("No memberId found");
+              return;
+            }
+            // 🔥 Run both APIs in parallel
+            const [borrowRes, statsRes] = await Promise.all([
+              borrowedForOneMember(memberId),
+              getDashboardStats(memberId)
+            ]);
+            console.log("Borrowed:", borrowRes);
+            console.log("Stats:", statsRes);
+            // ✅ Set data
+            setBorrowedBooks(borrowRes.data);
+            setDashboardStats(statsRes.data);
+            cacheBorrowed[memberId] = [...borrowedBooks]
+            cacheDashboard[memberId] = {...dashboardStats}
 
-        if (!memberId) {
-          console.error("No memberId found");
-          return;
+          } catch (error) {
+            console.error("Error loading dashboard:", error);
+          }
         }
-
-        // 🔥 Run both APIs in parallel
-        const [borrowRes, statsRes] = await Promise.all([
-          borrowedForOneMember(memberId),
-          getDashboardStats(memberId)
-        ]);
-
-        console.log("Borrowed:", borrowRes);
-        console.log("Stats:", statsRes);
-
-        // ✅ Set data
-        setBorrowedBooks(borrowRes.data);
-        setDashboardStats(statsRes.data);
-
-      } catch (error) {
-        console.error("Error loading dashboard:", error);
-      }
+        loadDashboard();
+      }, []);
+    } else {
+        setBorrowedBooks(cacheBorrowed[memberId])
+        setDashboardStats(dashboardStats[memberId])
+        console.log('free cache')
     }
-
-    loadDashboard();
-  }, []);
   return (
     <div className="p-8">
       {/* Stats Cards */}

@@ -2,53 +2,48 @@ import { useEffect, useState } from "react";
 import BookCard from "./BookCard.jsx";
 import { getMyBooks } from "../api/memberApi.js"; 
 import { getBookById } from "../api/bookApi.js";
+let cache = null;
 function MyBooks() {
-    const id = localStorage.getItem('id')||"69c28ca4b067e752b9d87135"
+    const id = localStorage.getItem('id')
     //const [bookIds,setBookIds] = useState([])
-    const [myBooks, setMyBooks] = useState(() => {
-    return JSON.parse(localStorage.getItem("myBooks")) || [];
-  });
-    useEffect(() => {
-      const fetchBooks = async () => {
-        try {
-          // 1️⃣ Get Book IDs
-          const res = await getMyBooks(id);
-
-          if (res.status !== 200) {
-            console.error(res.data.message);
-            return;
+    const [myBooks, setMyBooks] = useState([]);
+        useEffect(() => {
+          const fetchBooks = async () => {
+          try {
+            // 1️⃣ Get Book IDs
+            const res = await getMyBooks(id);
+            if (res.status !== 200) {
+              console.error(res.data.message);
+              return;
+            }
+            const ids = res.data.map((b) => b._id);
+            console.log("Book IDs:", ids);
+            // ❗ Ensure it's an array
+            if (!Array.isArray(ids)) {
+              console.error("IDs is not an array");
+              return;
+            }
+            // 2️⃣ Fetch all book details
+            const bookPromises = ids.map((bookId) => getBookById(bookId));
+            const bookResponses = await Promise.all(bookPromises);
+            // 3️⃣ Extract data
+            const books = bookResponses.map((res) => res.data);
+            // 4️⃣ Update state
+            setMyBooks(books);
+            // 5️⃣ Store
+            //localStorage.setItem("myBooks", JSON.stringify(books));
+            cache[id] = myBooks
+            } catch (error) {
+            console.error("Error fetching myBooks:", error);
           }
-
-          const ids = res.data.map((b) => b._id);
-          console.log("Book IDs:", ids);
-
-          // ❗ Ensure it's an array
-          if (!Array.isArray(ids)) {
-            console.error("IDs is not an array");
-            return;
-          }
-
-          // 2️⃣ Fetch all book details
-          const bookPromises = ids.map((bookId) => getBookById(bookId));
-
-          const bookResponses = await Promise.all(bookPromises);
-
-          // 3️⃣ Extract data
-          const books = bookResponses.map((res) => res.data);
-
-          // 4️⃣ Update state
-          setMyBooks(books);
-
-          // 5️⃣ Store
-          localStorage.setItem("myBooks", JSON.stringify(books));
-
-        } catch (error) {
-          console.error("Error fetching myBooks:", error);
+        };
+        if (cache) {
+          setMyBooks(cache)
+          return;
         }
-      };
-
-      fetchBooks();
-    }, []);
+        fetchBooks();
+      }, []);
+    
   const handleBorrow = (book) => {
     alert(`Reading: ${book.title}`);
   };

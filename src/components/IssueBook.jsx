@@ -1,119 +1,89 @@
 import { useEffect, useState } from "react";
-import {
-  getBorrowRequests,
-  updateRequestStatus,
-} from "../api/borrowRequestAPI.js";
+import { getBorrowRequests, updateRequestStatus } from "../api/borrowRequestAPI.js";
 import { getMemberById } from "../api/memberApi";
 import { getBookById } from "../api/bookApi";
 import { addTransaction } from "../api/transactionApi";
 
+// ✅ Outside component so it persists across renders
+let cache = null;
+
 function IssueBook() {
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      memberName: "Pradyumna",
-      bookTitle: "JavaScript Basics",
-      requestDate: "10 Mar 2026",
-      status: "Pending"
-    },
-    {
-      id: 2,
-      memberName: "Ram",
-      bookTitle: "Python Guide",
-      requestDate: "11 Mar 2026",
-      status: "Pending"
-    }
-  ]);
+  const [requests, setRequests] = useState([]);
   const [loadingIds, setLoadingIds] = useState([]);
+
+  // ✅ Hook always at top level — condition lives inside
   useEffect(() => {
+    if (cache) {
+      setRequests(cache);
+      return;
+    }
+
     async function fetchRequests() {
       const res = await getBorrowRequests();
-
       const requestsWithDetails = await Promise.all(
         res.data.map(async (req) => {
           const [bookRes, memberRes] = await Promise.all([
             getBookById(req.bookId),
-            getMemberById(req.memberId)
+            getMemberById(req.memberId),
           ]);
-
           return {
             ...req,
             memberName: memberRes.data.name,
-            bookTitle: bookRes.data.title
+            bookTitle: bookRes.data.title,
           };
         })
       );
-      console.table(requestsWithDetails)
-      setRequests(requestsWithDetails.filter((req) => {
-        return req.status === "Pending"
-      })||[]);
-      
-    const approved = requestsWithDetails.filter(req => req.status === "Approved");
 
-      const transactions = approved.map(req => ({
-        memberId: req.memberId,
-        bookId: req.bookId,
-        issueDate: new Date(),
-        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // REQUIRED ✅
-        status: "Issued" // ✅ MUST match schema enum
-      }));
-
-      await Promise.all(transactions.map(data => addTransaction(data)));
-          }
+      const pending = requestsWithDetails.filter(req => req.status === "Pending");
+      cache = pending; // ✅ Cache the actual fetched+filtered data
+      setRequests(pending);
+    }
 
     fetchRequests();
   }, []);
+
   const handleApprove = async (id) => {
     try {
-      // disable button (optional but recommended)
-      setLoadingIds((prev) => [...prev, id]);
+      setLoadingIds(prev => [...prev, id]);
+      // ✅ Create transaction only when explicitly approved
+      const req = requests.find(r => r._id === id);
+      await addTransaction({
+        memberId: req.memberId,
+        bookId: req.bookId,
+        issueDate: new Date(),
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        status: "Issued",
+      });
 
-      // optimistic UI update
-      setRequests(prev =>
-        prev.map(req =>
-          req._id === id ? { ...req, status: "Approved" } : req
-        )
-      );
+      await updateRequestStatus(id, "Approved");
 
-      // ✅ send only required data
-      const res = await updateRequestStatus(id, "Approved");
+      // ✅ Remove from pending list (or update status)
+      setRequests(prev => prev.filter(r => r._id !== id));
+      cache = requests.filter(r => r._id !== id); // ✅ Keep cache in sync
 
-      console.log(res.data);
     } catch (error) {
       console.error(error);
-
-      // ❗ rollback if needed
-      setRequests(prev =>
-        prev.map(req =>
-          req._id === id ? { ...req, status: "Pending" } : req
-        )
-      );
     } finally {
-      setLoadingIds((prev) => prev.filter((item) => item !== id));
+      setLoadingIds(prev => prev.filter(item => item !== id));
     }
   };
+
   const handleReject = async (id) => {
     try {
-        setRequests(prev =>
-          prev.map(req =>
-            req._id === id ? { ...req, status: "Rejected" } : req
-          )
-        );
-       // ✅ send only required data
-      const res = await updateRequestStatus(id, "Rejected");
-      console.log(res.data);
+      setLoadingIds(prev => [...prev, id]); // ✅ was missing
+
+      await updateRequestStatus(id, "Rejected");
+      setRequests(prev => prev.filter(r => r._id !== id));
+      cache = requests.filter(r => r._id !== id); // ✅ Keep cache in sync
+
     } catch (error) {
       console.error(error);
-      // ❗ rollback if needed
-      setRequests(prev =>
-        prev.map(req =>
-          req._id === id ? { ...req, status: "Pending" } : req
-        )
-      );
     } finally {
-      setLoadingIds((prev) => prev.filter((item) => item !== id));
+      setLoadingIds(prev => prev.filter(item => item !== id));
     }
   };
+
+  // ... JSX unchanged
 
   return (
     <div className="p-6">

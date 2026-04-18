@@ -1,19 +1,25 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import BookCard from "./BookCard.jsx";
 import { addMyBooks, deleteMyBooks, getMyBooks } from "../api/memberApi.js";
 import { getBooks } from "../api/bookApi.js";
-import {addBorrowRequest, getBorrowRequestBymemberId} from '../api/borrowRequestAPI.js'
+import { addBorrowRequest, getBorrowRequestBymemberId } from '../api/borrowRequestAPI.js';
 import { useOutletContext } from "react-router-dom";
+
+// ✅ Cache outside component
+let cache = null;
 
 function ViewAllBooks() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedAuthor, setSelectedAuthor] = useState("All");
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
-  const [allBooks,setAllBooks] = useState([]);
+  const [allBooks, setAllBooks] = useState([]);
   const [myBooks, setMyBooks] = useState([]);
   const [borrowRequests, setBorrowRequests] = useState([]);
   const { searchQuery } = useOutletContext();
+
+  // ✅ Single source of truth for id
+  const id = localStorage.getItem('id') || "69c28ca4b067e752b9d87135";
 
   const categories = ["All", ...new Set(allBooks.map(book => book.category))];
   const authors = ["All", ...new Set(allBooks.map(book => book.author))];
@@ -23,92 +29,72 @@ function ViewAllBooks() {
     if (selectedCategory !== "All" && book.category !== selectedCategory) return false;
     if (selectedAuthor !== "All" && book.author !== selectedAuthor) return false;
     if (showAvailableOnly && !book.available) return false;
-
     if (q) {
       const publisherName =
         typeof book.publisherId === "object" && book.publisherId !== null
-          ? book.publisherId.name
-          : book.publisherId;
-
-      const titleMatch = (book.title || "").toLowerCase().includes(q);
-      const authorMatch = (book.author || "").toLowerCase().includes(q);
-      const publisherMatch = (publisherName || "").toString().toLowerCase().includes(q);
-
-      if (!titleMatch && !authorMatch && !publisherMatch) return false;
+          ? book.publisherId.name : book.publisherId;
+      if (
+        !(book.title || "").toLowerCase().includes(q) &&
+        !(book.author || "").toLowerCase().includes(q) &&
+        !(publisherName || "").toString().toLowerCase().includes(q)
+      ) return false;
     }
     return true;
   });
-    const id = localStorage.getItem('id')||"69c28ca4b067e752b9d87135"
-    useEffect(() => {
-      async function fetchData() {
-        try {
-          const [booksRes, myBooksRes,borrowRequestRes] = await Promise.all([
-            getBooks(),
-            getMyBooks(id),
-            getBorrowRequestBymemberId(id)
-          ]);
-          // ✅ Handle Books
-          if (booksRes.status === 200) {
-            console.log(booksRes);
-            console.table(booksRes.data);
-            setAllBooks(booksRes.data || []);
-          } else {
-            console.error(booksRes.data?.message);
-          }
-          // ✅ Handle My Books
-          if (myBooksRes.status === 200) {
-            setMyBooks(myBooksRes.data || []);
-          } else {
-            console.error(myBooksRes.data?.message);
-          }
-          if (borrowRequestRes.status === 200) {
-            setBorrowRequests(borrowRequestRes.data || [])
-          } else {
-            console.error(borrowRequestRes.data?.message)
-          }
-        } catch (error) {
-          console.error("Error fetching data:", error);
+
+  useEffect(() => {
+    // ✅ Use cache for books if available; still fetch myBooks/borrowRequests (user-specific)
+    async function fetchData() {
+      try {
+        const [myBooksRes, borrowRequestRes] = await Promise.all([
+          getMyBooks(id),
+          getBorrowRequestBymemberId(id)
+        ]);
+        if (myBooksRes.status === 200) setMyBooks(myBooksRes.data || []);
+        if (borrowRequestRes.status === 200) setBorrowRequests(borrowRequestRes.data || []);
+
+        if (cache) {
+          setAllBooks(cache); // ✅ Use cached books
+          return;
         }
+
+        const booksRes = await getBooks();
+        if (booksRes.status === 200) {
+          cache = booksRes.data || []; // ✅ Cache books (they're shared, not user-specific)
+          setAllBooks(cache);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-      fetchData();
-    }, [id]);
+    }
+    fetchData();
+  }, []); // ✅ id never changes so [] is accurate
+
   const handleBookmark = async (book) => {
+    const previous = myBooks; // ✅ Save for rollback
     try {
       const exists = myBooks.some((b) => b._id === book._id);
-      let updatedBooks;
-      
       if (exists) {
-        // Remove from local state first (optimistic update)
-        updatedBooks = myBooks.filter((b) => b._id !== book._id);
-        setMyBooks(updatedBooks);
-        
-        // Call delete API when unchecking
-        console.log("Removing bookId:", book._id);
-        const res = await deleteMyBooks(id, book._id);  // ✅ New delete API call
-        console.log("Delete response:", res.data);
+        setMyBooks(myBooks.filter((b) => b._id !== book._id));
+        await deleteMyBooks(id, book._id);
       } else {
-        // Add to local state first
-        updatedBooks = [...myBooks, book];
-        setMyBooks(updatedBooks);
-        
-        // Call add API
-        console.log("Adding bookId:", book._id);
-        const res = await addMyBooks(id, book._id);
-        console.log("Add response:", res.data);
+        setMyBooks([...myBooks, book]);
+        await addMyBooks(id, book._id);
       }
     } catch (error) {
       console.error("Bookmark error:", error);
-      // ✅ Rollback on error - reload from server or revert state
-      // setMyBooks(previousBooks); // Use useRef for previous state
+      setMyBooks(previous); // ✅ Rollback on failure
     }
   };
-    const handleBorrow = async (book) => {
-      alert(`Borrowing: ${book.title}`);
-      const id = localStorage.getItem('id') || "69cdeb455ac4a12b21412d14"
-      const res = await addBorrowRequest({memberId:id, bookId:book._id});
-      console.log(res);
-    };
 
+  const handleBorrow = async (book) => {
+    alert(`Borrowing: ${book.title}`);
+    // ✅ Use the same id, no re-declaration
+    const res = await addBorrowRequest({ memberId: id, bookId: book._id });
+    console.log(res);
+  };
+
+  // ... rest of JSX unchanged
   return (
     <div className="p-8">
       {/* Filters */}

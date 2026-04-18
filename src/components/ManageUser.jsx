@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {getMembers} from '../api/memberApi'
 import { useNavigate } from 'react-router'
-
+const cache = []
 function ManageUser() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -9,28 +9,29 @@ function ManageUser() {
     const navigate = useNavigate();
     // ✅ Fixed: Import your API function
     // import { fetchBooks, deleteBook, updateBook } from '../api/bookApi';
-  
-    useEffect(() => {
-      async function fetchBooksData() {
-        try {
-          setLoading(true);
-          setError(null);
-          
-          // ✅ Fixed: Proper fetch + response.json()
-          const res = await getMembers();  // axios
-          const data = res.data;
-          setUsers(Array.isArray(data) ? data : data.members || []);
-        } catch (error) {
-          console.error('Fetch error:', error);
-          setError('Failed to load books');
-        } finally {
-          setLoading(false);
+      useEffect(() => {
+        async function fetchBooksData() {
+          try {
+            setLoading(true);
+            setError(null);
+            // ✅ Fixed: Proper fetch + response.json()
+            const res = await getMembers();  // axios
+            const data = res.data;
+            setUsers(Array.isArray(data) ? data : data.members || []);
+            cache = users
+          } catch (error) {
+            console.error('Fetch error:', error);
+            setError('Failed to load books');
+          } finally {
+            setLoading(false);
+          }
         }
-      }
-      
-      fetchBooksData();
-    }, []);
-
+        if(cache) {
+          setUsers(cache)
+          return;
+        }
+        fetchBooksData();
+      }, []);
   return (
     <div className="p-6">
       {/* Top Section */}

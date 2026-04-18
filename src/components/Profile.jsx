@@ -5,6 +5,7 @@ import { updateMember,getMemberById } from "../api/memberApi";
 import {useNavigate} from "react-router"
 import { getAdminById, updateAdmin } from "../api/adminApi";
 import { base64img } from "../utils/imagedisplay.js"; // adjust path
+let cache = null;
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   // const [userProfile, setUserProfile] = useState({});
@@ -13,32 +14,37 @@ function Profile() {
   const navigate = useNavigate()
   const role = localStorage.getItem('role')
   const id = localStorage.getItem('id');
-  useEffect(() => {
-      const loadProfile = async () => {
-          // ❌ if no id → redirect
-          if (!id || id === "null") {
-            console.log("No ID found, redirecting...",id);
-            return;
+    useEffect(() => {
+          const loadProfile = async () => {
+              // ❌ if no id → redirect
+              if (!id || id === "null") {
+                console.log("No ID found, redirecting...",id);
+                return;
+              }
+              if (role === "member") {
+                const res = await getMemberById(id);
+                console.table(res.data);
+                const data = res.data?.data || res.data; // handle both cases
+                //setUserProfile(data);
+                setProfile(data);          // ✅ IMPORTANT
+                setEditedProfile(data);
+              } else {
+                const res = await getAdminById(id);
+                console.table(res.data);
+                const data = res.data?.data || res.data; // handle both cases
+                //setUserProfile(data);
+                setProfile(data);          // ✅ IMPORTANT
+                setEditedProfile(data);
+              }
+                // ✅ IMPORTANT
+                cache[id] = profile
+          };
+          if (cache[id]) {
+            setProfile(cache[id])
+            return
           }
-          if (role === "member") {
-            const res = await getMemberById(id);
-            console.table(res.data);
-            const data = res.data?.data || res.data; // handle both cases
-            //setUserProfile(data);
-            setProfile(data);          // ✅ IMPORTANT
-            setEditedProfile(data);
-          } else {
-            const res = await getAdminById(id);
-            console.table(res.data);
-            const data = res.data?.data || res.data; // handle both cases
-            //setUserProfile(data);
-            setProfile(data);          // ✅ IMPORTANT
-            setEditedProfile(data);
-          }
-            // ✅ IMPORTANT
-      };
-      loadProfile();
-    }, [id]);
+          loadProfile();
+        }, [id]);
       const handleEdit = () => {
         setIsEditing(true);
         setEditedProfile(profile); // ok AFTER fix above

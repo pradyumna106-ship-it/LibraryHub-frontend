@@ -2,18 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { borrowedForOneMember, renewBook, returnBook } from "../api/transactionApi.js";
+
+const cache = []
 function BorrowedBooks() {
-  const memberId = 	localStorage.getItem('id')||'69c28ca4b067e752b9d87135'
+  const memberId = 	localStorage.getItem('id')
   const [borrowedBooks, setBorrowedBooks] = useState([]);
-  useEffect(() => {
-    async function loadBorrowedBooks() {
-      const res = await borrowedForOneMember(memberId);
-      console.log(res);
-      setBorrowedBooks(res.data);
-    }
-    loadBorrowedBooks()
-    
-  },[]);
+  if (!cache[memberId] || cache[memberId] !== borrowedBooks) {
+    useEffect(() => {
+      async function loadBorrowedBooks() {
+        const res = await borrowedForOneMember(memberId);
+        console.log(res);
+        setBorrowedBooks(res.data);
+        cache[memberId] = [...borrowedBooks]
+      }
+      loadBorrowedBooks()
+    },[]);
+  } else {
+    setBorrowedBooks(cache[memberId])
+    console.log('free cache')
+  }
+  
   const handleRenew = async (transactionId) => {
     try {
       const res = await renewBook(transactionId);

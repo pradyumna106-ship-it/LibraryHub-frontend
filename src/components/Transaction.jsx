@@ -1,43 +1,57 @@
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getTransactionsWithNameTitle } from "../api/transactionApi";
 
+// ✅ Outside component so it persists across renders
+let cache = null;
 
 function Transaction() {
-  const [transactions,setTransactions] = useState([
-    {
-      txnId: 5001,
-      member: "Pradyumna",
-      book: "JavaScript",
-      issueDate: "10 Mar 2026",
-      dueDate: "20 Mar 2026",
-      returnDate: "-",
-      status: "Issued",
-      fine: 0
-    },
-    {
-      txnId: 5002,
-      member: "Ram",
-      book: "Python",
-      issueDate: "12 Mar 2026",
-      dueDate: "18 Mar 2026",
-      returnDate: "-",
-      status: "Overdue",
-      fine: 50
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // ✅ Use cache if available
+    if (cache) {
+      setTransactions(cache);
+      return;
     }
-  ]);
- useEffect(() => {
-  async function fetchAll() {
-    const res = await getTransactionsWithNameTitle();
-    const formatted = res.data.map((txn) => ({
-      ...txn,
-      memberName: txn.memberName,
-      bookTitle: txn.bookTitle
-    }));
-      setTransactions(formatted || []);
+
+    async function fetchAll() {
+      setLoading(true); // ✅ Set before fetch
+      try {
+        const res = await getTransactionsWithNameTitle();
+        const formatted = res.data.map((txn) => ({
+          ...txn,
+          memberName: txn.memberName,
+          bookTitle: txn.bookTitle,
+        }));
+        cache = formatted; // ✅ let allows reassignment
+        setTransactions(formatted);
+      } finally {
+        setLoading(false);
+      }
     }
-      fetchAll();
-    }, []);
+
+    fetchAll();
+  }, []); // ✅ Hook always at top level, no conditions
+
+  // ... rest of JSX
+    if (loading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="grid grid-cols-3 gap-6 mb-8 max-w-[1000px]">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="relative h-[150px] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br animate-pulse">
+              <div className="h-full bg-gray-200" />
+            </div>
+          ))}
+        </div>
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-8 text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
 
   return (

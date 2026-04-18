@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
 import { getHistoryByMember } from "../api/transactionApi.js";
+let cache = null;
 function History() {
   const [historyData, setHistoryData] = useState([]);
-  const memberId = 	localStorage.getItem('id')||'69c28ca4b067e752b9d87135';
-  useEffect(() => {
-    async function loadHistory() {
-      const res = await getHistoryByMember(memberId);
-      console.log(res);
-      setHistoryData(res.data)
-    }
-    loadHistory()
-  },[]);
+  const memberId = 	localStorage.getItem('id');
+    useEffect(() => {
+      async function loadHistory() {
+        const res = await getHistoryByMember(memberId);
+        console.log(res);
+        setHistoryData(res.data)
+        cache[memberId] = [...historyData]
+      }
+      if (cache) {
+        setHistoryData(cache[memberId])
+        console.log('free cache')
+        return;
+      }
+      loadHistory()
+    },[]);
+  
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Borrowing History</h1>

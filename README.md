@@ -60,7 +60,7 @@ LibraryHub Frontend is a modern and responsive web application built using React
 |    └───utils
 |
 |
-<pre> </br>
+</pre> </br>
 
 
 ---

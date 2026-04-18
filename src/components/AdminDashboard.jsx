@@ -4,7 +4,8 @@ import { getBookCount } from '../api/bookApi';
 import { getMemberCount } from '../api/memberApi';
 import { getIssuedCount, getTransactionsWithNameTitle } from '../api/transactionApi';
 
-
+const cacheIssues = []
+const cacheDashboard = {}
 export default function AdminDashboard() {
   const [dashboardStats, setDashboardStats] = useState({
     totalBooks: 0,
@@ -13,7 +14,6 @@ export default function AdminDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [Issues,setIssues] = useState([
     { name: "Pradyumna", book: "JavaScript Basics", date: "10 Mar 2026", status: "Active" },
     { name: "Ram", book: "Python Guide", date: "12 Mar 2026", status: "Overdue" }
@@ -22,25 +22,34 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchCounts = async () => {
         try {
-          const [booksRes, membersRes, issuedRes, TransactionRes] = await Promise.all([
-            getBookCount(),
-            getMemberCount(),
-            getIssuedCount(),
-            getTransactionsWithNameTitle()
-          ]);
-          // ✅ Extract .data from each response
-          setDashboardStats({
-            totalBooks: booksRes.data || 0,      // 123
-            totalMembers: membersRes.data || 0, // 456  
-            issuedBooks: issuedRes.data || 0     // 78
-          });
-          const formated = TransactionRes.data.map((issue) => ({
-              ...issue,
-              name: issue.memberName,
-              book: issue.bookTitle,
-              date: issue.issueDate
-          }));
-          setIssues(formated)
+          if ((!cacheIssues || !cacheDashboard) || cacheIssues !== Issues || cacheDashboard !== dashboardStats) {
+              const [booksRes, membersRes, issuedRes, TransactionRes] = await Promise.all([
+                getBookCount(),
+                getMemberCount(),
+                getIssuedCount(),
+                getTransactionsWithNameTitle()
+              ]);
+            // ✅ Extract .data from each response
+              setDashboardStats({
+                totalBooks: booksRes.data || 0,      // 123
+                totalMembers: membersRes.data || 0, // 456  
+                issuedBooks: issuedRes.data || 0     // 78
+                });
+              const formated = TransactionRes.data.map((issue) => ({
+                  ...issue,
+                  name: issue.memberName,
+                  book: issue.bookTitle,
+                  date: issue.issueDate
+              }));
+            setIssues(formated)
+            cacheIssues = [...Issues]
+            cacheDashboard = {...dashboardStats}
+            }
+            else {
+              setIssues(cacheIssues)
+              setDashboardStats(cacheDashboard)
+              console.log("free Cache")
+            }
         } catch (error) {
           console.error(error);
           setError(error)

@@ -1,7 +1,7 @@
 import { useState,  useMemo, useEffect } from 'react';
 import { Search, Calendar, Filter, ChevronDown, MoreVertical, Download } from 'lucide-react';
 import { getTransactionsHistory } from '../api/transactionApi';
-
+let cache = null;
 const HistoryContent = () => {
   const [historyData,setHistoryData] = useState([
       { id: 1, memberName: 'John Doe', stock: 'React Crash Course', issueDate: '2026-03-15', returnDate: '2026-04-12', status: 'Issued' },
@@ -18,6 +18,12 @@ const HistoryContent = () => {
           const res = await getTransactionsHistory();
           console.log(res)
           setHistoryData(res.data||[]);
+          cache = [...historyData]
+        }
+        if (cache) {
+          setHistoryData(cache)
+          console.log('free cache')
+          return
         }
         fetchAll()
       },[]);
