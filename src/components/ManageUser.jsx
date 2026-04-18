@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {getMembers} from '../api/memberApi'
+import { deleteMember, getMembers} from '../api/memberApi'
 import { useNavigate } from 'react-router'
 let cache = null
 function ManageUser() {
