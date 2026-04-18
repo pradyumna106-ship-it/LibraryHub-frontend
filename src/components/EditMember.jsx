@@ -6,12 +6,17 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 const EditMember = () => {
     const { id } = useParams();
     const location = useLocation();
-    const [formData, setFormData] = useState(location.state);
+    const [formData, setFormData] = useState({
+      ...location.state,
+      confirmPassword: "",
+      password: "",  // also clear password — don't pre-fill it for security
+    });
     const [avatar, setAvatar] = useState(null);
     const [preview, setPreview] = useState(null);
     const [showCamera, setShowCamera] = useState(false);
     const navigate = useNavigate()
     const [errors, setErrors] = useState({});
+    const streamRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,19 +53,23 @@ const EditMember = () => {
 
     setPreview(base64Image);
     setShowCamera(false);
+    stopCamera();
   };
     const startCamera = async () => {
       setShowCamera(true);
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const video = document.querySelector("video");
-      video.srcObject = stream;
+      streamRef.current = stream; // ✅ save reference
+      document.querySelector("video").srcObject = stream;
+    };
+    const stopCamera = () => {
+      streamRef.current?.getTracks().forEach(track => track.stop()); // ✅ kill stream
+      setShowCamera(false);
     };
   const validateForm = () => {
     const newErrors = {};
-    
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.dept.trim()) newErrors.dept = 'Department is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    if (!(formData.name || "").trim()) newErrors.name = 'Name is required';
+    if (!(formData.dept || "").trim()) newErrors.dept = 'Department is required';
+    if (!(formData.email || "").trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     if (!formData.password) newErrors.password = 'Password is required';
     else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
@@ -68,7 +77,6 @@ const EditMember = () => {
     else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords don't match";
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -82,9 +90,7 @@ const EditMember = () => {
   ];
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     try {
           const formPayload = new FormData();
           Object.keys(formData).forEach(key => {
@@ -92,7 +98,6 @@ const EditMember = () => {
               formPayload.append(key, formData[key]); // ✅ only non-empty
             }
           });
-
           // ✅ send actual file
           if (avatar) {
             formPayload.append("avatar", avatar);
@@ -101,12 +106,10 @@ const EditMember = () => {
                     console.log(pair[0], pair[1]);
                   }
               const response = await updateMember(id,formPayload);
-
-              if (response.ok) {
+              if (response.status === 200) {
                 alert("Sign up successful!");
                 navigate("/login/member");
               }
-
             } catch (error) {
               console.error(error);
               setErrors({ general: 'Server error' });

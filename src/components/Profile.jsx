@@ -362,7 +362,7 @@ function Profile() {
                     Created At
                   </label>
                   <p className="text-gray-900 text-lg">
-                    {new Date(currentProfile.createdAt).toLocaleDateString()}
+                    {currentProfile.createdAt ? new Date(currentProfile.createdAt).toLocaleDateString() : "—"}
                   </p>
                 </div>
                 {/* updateAt */}
@@ -371,7 +371,7 @@ function Profile() {
               Last Updated
             </label>
             <p className="text-gray-900 text-lg">
-              {new Date(currentProfile.updatedAt).toLocaleDateString()}
+              {currentProfile.updatedAt ? new Date(currentProfile.updatedAt).toLocaleDateString() : "—"}
             </p>
           </div>
             </div>

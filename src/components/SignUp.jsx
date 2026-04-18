@@ -20,7 +20,7 @@ const SignUp = () => {
   const [showCamera, setShowCamera] = useState(false);
   const navigate = useNavigate()
   const [errors, setErrors] = useState({});
-
+  const streamRef = useRef(null);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -39,28 +39,28 @@ const SignUp = () => {
   const handleCapture = () => {
     const video = document.querySelector("video");
     const canvas = document.createElement("canvas");
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0);
-
     // Convert to file instead of base64
     canvas.toBlob((blob) => {
       const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
-
       setAvatar(file);
       setPreview(URL.createObjectURL(file));
     }, "image/jpeg");
-
     setShowCamera(false);
+    stopCamera()
   };
     const startCamera = async () => {
       setShowCamera(true);
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const video = document.querySelector("video");
-      video.srcObject = stream;
+      streamRef.current = stream; // ✅ save reference
+      document.querySelector("video").srcObject = stream;
+    };
+    const stopCamera = () => {
+      streamRef.current?.getTracks().forEach(track => track.stop()); // ✅ kill stream
+      setShowCamera(false);
     };
   const validateForm = () => {
     const newErrors = {};
