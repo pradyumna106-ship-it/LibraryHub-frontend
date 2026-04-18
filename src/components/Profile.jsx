@@ -5,7 +5,7 @@ import { updateMember,getMemberById } from "../api/memberApi";
 import {useNavigate} from "react-router"
 import { getAdminById, updateAdmin } from "../api/adminApi";
 import { base64img } from "../utils/imagedisplay.js"; // adjust path
-let cache = null;
+let cache = {};
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   // const [userProfile, setUserProfile] = useState({});
@@ -21,7 +21,7 @@ function Profile() {
                 console.log("No ID found, redirecting...",id);
                 return;
               }
-              if (cache[id]) {
+              if (cache[id] && cache) {
                 setProfile(cache[id])
                 return
               }

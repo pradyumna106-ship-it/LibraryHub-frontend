@@ -7,7 +7,7 @@ import { addBorrowRequest, getBorrowRequestBymemberId } from '../api/borrowReque
 import { useOutletContext } from "react-router-dom";
 
 // ✅ Cache outside component
-let cache = [];
+let cache = null;  // simple cache, not keyed by id
 
 function ViewAllBooks() {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -43,7 +43,6 @@ function ViewAllBooks() {
   });
 
   useEffect(() => {
-    // ✅ Use cache for books if available; still fetch myBooks/borrowRequests (user-specific)
     async function fetchData() {
       try {
         const [myBooksRes, borrowRequestRes] = await Promise.all([
@@ -52,15 +51,13 @@ function ViewAllBooks() {
         ]);
         if (myBooksRes.status === 200) setMyBooks(myBooksRes.data || []);
         if (borrowRequestRes.status === 200) setBorrowRequests(borrowRequestRes.data || []);
-
-        if (cache && cache[id]) {
-          setAllBooks(cache); // ✅ Use cached books
+        if (cache) {
+          setAllBooks(cache);  // ✅ cache holds the array directly
           return;
         }
-
         const booksRes = await getBooks();
         if (booksRes.status === 200) {
-          cache[id] = booksRes.data || []; // ✅ Cache books (they're shared, not user-specific)
+          cache = booksRes.data || [];  // ✅ store the array directly
           setAllBooks(cache);
         }
       } catch (error) {
@@ -68,7 +65,7 @@ function ViewAllBooks() {
       }
     }
     fetchData();
-  }, []); // ✅ id never changes so [] is accurate
+  }, []);  // ✅ id never changes so [] is accurate
 
   const handleBookmark = async (book) => {
     const previous = myBooks; // ✅ Save for rollback
