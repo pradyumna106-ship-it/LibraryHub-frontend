@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { User, Mail, Phone, MapPin, Calendar, BookOpen, DollarSign, Edit2, Save, X } from "lucide-react";
 //import { userProfile as initialProfile } from "../data/mockData.js";
-import { updateMember,getMemberById } from "../api/memberApi";
+import { updateMember,getMemberById, deleteMember } from "../api/memberApi";
 import {useNavigate} from "react-router"
-import { getAdminById, updateAdmin } from "../api/adminApi";
+import { deleteAdmin, getAdminById, updateAdmin } from "../api/adminApi";
 import { base64img } from "../utils/imagedisplay.js"; // adjust path
 let cache = {};
 function Profile() {
@@ -27,21 +27,17 @@ function Profile() {
               }
               if (role === "member") {
                 const res = await getMemberById(id);
-                console.table(res.data);
-                const data = res.data?.data || res.data; // handle both cases
-                //setUserProfile(data);
-                setProfile(data);          // ✅ IMPORTANT
+                const data = res.data?.data || res.data;
+                setProfile(data);
                 setEditedProfile(data);
+                cache[id] = data; // ✅ cache the data, not the stale state
               } else {
                 const res = await getAdminById(id);
-                console.table(res.data);
-                const data = res.data?.data || res.data; // handle both cases
-                //setUserProfile(data);
-                setProfile(data);          // ✅ IMPORTANT
+                const data = res.data?.data || res.data;
+                setProfile(data);
                 setEditedProfile(data);
+                cache[id] = data; // ✅ same here
               }
-                // ✅ IMPORTANT
-                cache[id] = profile
           };
           loadProfile();
         }, [id]);
@@ -65,39 +61,40 @@ function Profile() {
     ];
     const handleLogout = () => {
       // 🧹 Clear storage
-      localStorage.removeItem("id");
-      localStorage.removeItem('role');
-      localStorage.removeItem('email');
-      localStorage.removeItem('password');
+      const confirmed = confirm("Are you sure you want to logout?"); // ✅ ok/cancel dialog
+      if (!confirmed) return; // ✅ cancel → do nothing
       localStorage.clear()
       //localStorage.removeItem("token"); // if you use JWT later
-
       // 🚀 Redirect to login type page
       navigate("/");
     };
  const handleSave = async () => {
     try {
       let res;
-
       if (role === "member") {
         res = await updateMember(profile._id, editedProfile);
       } else {
         res = await updateAdmin(profile._id, editedProfile);
       }
-
       const updatedData = res.data?.data || res.data;
-
+      cache[id] = updatedData; // ✅ keep cache fresh after edit
       setProfile(updatedData);
       setEditedProfile(updatedData);
-      setIsEditing(false);
-
       alert("Profile updated successfully ✅");
     } catch (error) {
       console.error(error);
       alert("Something went wrong ❌");
     }
   };
-
+  const handleDelete = async () => {
+    if (role === "member") {
+      const res = await deleteMember(id);
+      console.log(res.data.message)
+    } else {
+      const res = await deleteAdmin(id);
+      console.log(res.data.message)
+    }
+  }
   const handleCancel = () => {
     setEditedProfile(profile);
     setIsEditing(false);
@@ -144,6 +141,12 @@ function Profile() {
             className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors"
           >
             Logout
+          </button>
+        <button
+            onClick={handleDelete}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors"
+          >
+            Delete Account
           </button>
       </div>
 

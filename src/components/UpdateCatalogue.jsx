@@ -227,7 +227,7 @@ function UpdateCatalogue() {
                           <Edit3 className="h-4 w-4" />
                         </button>
                         <button 
-                          onClick={() => handleDelete(book._id || index)}
+                          onClick={() => handleDelete(book._id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg hover:scale-105 transition-all group/delete"
                           title="Delete Book"
                         >

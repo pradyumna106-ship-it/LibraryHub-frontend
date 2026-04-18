@@ -9,6 +9,10 @@ function ManageUser() {
     const navigate = useNavigate();
     // ✅ Fixed: Import your API function
     // import { fetchBooks, deleteBook, updateBook } from '../api/bookApi';
+    const handleDelete = async (id) => {
+        const res = await deleteMember(id);
+        console.log(res.data.message)
+      }
       useEffect(() => {
         async function fetchBooksData() {
           try {
@@ -104,10 +108,10 @@ function ManageUser() {
                 </td>
                 {/* Actions */}
                 <td className="px-4 py-3 flex gap-2">
-                  <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600">
+                  <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600" onClick={() => navigate(`/edit-member/${user._id}`)}>
                     Edit
                   </button>
-                  <button className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">
+                  <button className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600" onClick={() => handleDelete(user._id)}>
                     Delete
                   </button>
                 </td>
