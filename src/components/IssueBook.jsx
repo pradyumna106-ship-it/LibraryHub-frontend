@@ -91,11 +91,14 @@ function IssueBook() {
       <h1 className="text-2xl font-semibold mb-6 text-gray-800">
         Borrow Requests
       </h1>
-
+      {requests.length === 0 && (
+        <div className="text-center py-16 text-gray-500">
+          <p className="text-xl">No Borrow Requsts.</p>
+        </div>
+      )}
       {/* Table */}
       <div className="bg-white shadow-md rounded-lg overflow-hidden border">
         <table className="w-full">
-
           {/* Header */}
           <thead className="bg-gray-800 text-white text-sm">
             <tr>
