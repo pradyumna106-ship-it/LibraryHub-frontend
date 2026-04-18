@@ -10,13 +10,12 @@ function Transaction() {
 
   useEffect(() => {
     // ✅ Use cache if available
-    if (cache) {
-      setTransactions(cache);
-      return;
-    }
-
     async function fetchAll() {
       setLoading(true); // ✅ Set before fetch
+          if (cache) {
+            setTransactions(cache);
+            return;
+          }
       try {
         const res = await getTransactionsWithNameTitle();
         const formatted = res.data.map((txn) => ({
@@ -26,6 +25,8 @@ function Transaction() {
         }));
         cache = formatted; // ✅ let allows reassignment
         setTransactions(formatted);
+      }catch(error) {
+        console.error(error)
       } finally {
         setLoading(false);
       }

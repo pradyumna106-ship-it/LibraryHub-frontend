@@ -13,12 +13,11 @@ function IssueBook() {
 
   // ✅ Hook always at top level — condition lives inside
   useEffect(() => {
-    if (cache) {
-      setRequests(cache);
-      return;
-    }
-
     async function fetchRequests() {
+          if (cache) {
+            setRequests(cache);
+            return;
+          }
       const res = await getBorrowRequests();
       const requestsWithDetails = await Promise.all(
         res.data.map(async (req) => {

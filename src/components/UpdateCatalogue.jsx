@@ -77,6 +77,7 @@ function UpdateCatalogue() {
       cache = books.filter(book => book._id !== bookId); // ✅ Keep cache in sync
       alert('Book deleted successfully!');
     } catch (error) {
+      console.error(error)
       setBooks(previous); // ✅ Rollback on failure
       alert('Failed to delete book');
     }
