@@ -21,8 +21,8 @@ function UpdateCatalogue() {
       typeof book.publisherId === "object" && book.publisherId !== null
         ? book.publisherId.name : book.publisherId;
     return (
-      (book.title || "").toLowerCase().includes(q) ||
-      (book.author || "").toLowerCase().includes(q) ||
+      (book.title || "Untitled").toLowerCase().includes(q) ||
+      (book.author || "Unknown").toLowerCase().includes(q) ||
       (publisherName || "").toString().toLowerCase().includes(q)
     );
   });
@@ -175,16 +175,16 @@ function UpdateCatalogue() {
                 filteredBooks.map((book, index) => (
                   <tr key={book._id || index} className="hover:bg-gray-50 transition-colors group">
                     <td className="px-6 py-4 font-semibold text-gray-900 group-hover:text-blue-600">
-                      {book.title}
+                      {book.title || "Untitled"}
                     </td>
                     <td className="px-6 py-4 text-gray-700">{book.author}</td>
                     <td className="px-6 py-4">
                       <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
-                        {book.category}
+                        {book.category  || "-"}
                       </span>
                     </td>
                     <td className="px-6 py-4 font-mono text-lg font-bold text-green-700">
-                      ₹{book.price?.toLocaleString()}
+                      ₹{book.price != null ? book.price.toLocaleString() : "N/A"}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -192,7 +192,7 @@ function UpdateCatalogue() {
                           ? 'bg-green-100 text-green-800 border-2 border-green-200' 
                           : 'bg-red-100 text-red-800 border-2 border-red-200'
                       }`}>
-                        {book.available}
+                        {book.available ?? "-"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
