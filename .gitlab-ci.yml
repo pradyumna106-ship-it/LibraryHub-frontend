@@ -49,7 +49,7 @@ build_image:
 deploy:
   stage: deploy
   image: node:20-alpine
-  needs: ["build_image"]  # ✅ already waits for package stage
+  needs: ["build_image"]
   dependencies:
     - frontend_build
   environment:
@@ -57,7 +57,7 @@ deploy:
     url: https://library-hub-frontend-snowy.vercel.app
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-  when: manual
+      when: manual  # ✅ moved inside rules
   script:
     - npm i -g vercel
-    - vercel --prod --token $VERCEL_TOKEN --yes  # --yes instead of --confirm (deprecated)
+    - vercel --prod --token $VERCEL_TOKEN --yes
