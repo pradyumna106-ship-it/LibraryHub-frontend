@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { getPublishers } from "../api/publisherApi";
 import { addBook } from "../api/bookApi";
 import { useNavigate } from "react-router";
-
 function AddBook() {
   const categoryOptions = [
     "Fiction",
@@ -16,7 +15,6 @@ function AddBook() {
     "Mystery",
     "Academic",
   ];
-
   const [formData, setFormData] = useState({
     title: "",
     author: "",

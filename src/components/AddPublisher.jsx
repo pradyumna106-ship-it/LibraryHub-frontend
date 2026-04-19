@@ -7,34 +7,25 @@ function AddPublisher() {
     name: "",
     address: ""
   });
-
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
   // ✅ Handle Input Change
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
   };
-
   // ✅ Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
-
       const res = await addPublisher(formData);
       console.log(res);
-
       alert("Publisher added successfully ✅");
-
       navigate(-1); // 🔙 go back
-
     } catch (error) {
       console.error(error);
       alert(error?.response?.data?.message || "Error adding publisher");
@@ -42,7 +33,6 @@ function AddPublisher() {
       setLoading(false);
     }
   };
-
   return (
     <div className="p-6 max-w-[500px] mx-auto bg-white shadow-md rounded-lg">
       
