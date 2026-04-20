@@ -17,10 +17,10 @@ const HistoryContent = () => {
           const res = await getTransactionsHistory();
           console.log(res)
           setHistoryData(res.data||[]);
-          cache = [...historyData]
+          cache = res.data
         }
         fetchAll()
-      },[historyData]);
+      },[]);
   // Mock data - replace with your API call
 
   const filteredData = useMemo(() => {

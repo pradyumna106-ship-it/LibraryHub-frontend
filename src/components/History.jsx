@@ -13,8 +13,8 @@ function History() {
           }
         const res = await getHistoryByMember(memberId);
         console.log(res);
-        setHistoryData(res.data)
-        cache[memberId] = [...historyData]
+        setHistoryData(res.data || [])
+        cache[memberId] = res.data
       }
       loadHistory()
     },[historyData, memberId]);
