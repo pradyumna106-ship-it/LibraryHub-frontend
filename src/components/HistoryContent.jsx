@@ -185,8 +185,8 @@ const HistoryContent = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredData.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+              {filteredData.map((item,index) => (
+                <tr key={index} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-5 whitespace-nowrap">
                     <div className="font-medium text-gray-900">{item.memberName}</div>
                   </td>
