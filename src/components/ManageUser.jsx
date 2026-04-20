@@ -45,13 +45,31 @@ function ManageUser() {
           }
         }
         fetchBooksData();
-      }, []);
+      }, [users]);
       
     const statusStyle = (status) => {
       if (status === "Active") return "bg-green-100 text-green-800";
       if (status === "Blocked") return "bg-red-100 text-red-800";
       return "bg-gray-200 text-gray-700";
     };
+
+        if (loading) {
+          return (
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-3 gap-6 mb-8 max-w-[1000px]">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="relative h-[150px] rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br animate-pulse">
+                    <div className="h-full bg-gray-200" />
+                  </div>
+                ))}
+              </div>
+              <div className="bg-white rounded-lg shadow-md border border-gray-200 p-8 text-center">
+                <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
+                <p className="text-gray-600">Loading dashboard...</p>
+              </div>
+            </div>
+          );
+        }
   return (
     <div className="p-3 md:p-6">
  

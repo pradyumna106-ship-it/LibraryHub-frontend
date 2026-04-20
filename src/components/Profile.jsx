@@ -60,7 +60,7 @@ function Profile() {
       }
     };
     loadProfile();
-  }, [id]);
+  }, [id,role]);
 
   const handleEdit = () => {
     setIsEditing(true);

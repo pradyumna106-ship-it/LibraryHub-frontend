@@ -26,7 +26,7 @@ const HistoryContent = () => {
           cache = [...historyData]
         }
         fetchAll()
-      },[]);
+      },[historyData]);
   // Mock data - replace with your API call
 
   const filteredData = useMemo(() => {

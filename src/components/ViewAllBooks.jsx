@@ -84,7 +84,7 @@ function ViewAllBooks() {
         }
       }
       fetchData();
-    }, []);  // ✅ id never changes so [] is accurate
+    }, [id]);  // ✅ id never changes so [] is accurate
 
   const handleBookmark = async (book) => {
     const previous = myBooks; // ✅ Save for rollback

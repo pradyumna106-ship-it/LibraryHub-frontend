@@ -4,20 +4,19 @@ import { getMemberById } from "../api/memberApi";
 import { getBookById } from "../api/bookApi";
 import { addTransaction } from "../api/transactionApi";
 import { BookOpen } from "lucide-react";
-// ✅ Outside component so it persists across renders
+
 let cache = null;
 
 function IssueBook() {
   const [requests, setRequests] = useState([]);
   const [loadingIds, setLoadingIds] = useState([]);
 
-  // ✅ Hook always at top level — condition lives inside
   useEffect(() => {
     async function fetchRequests() {
-          if (cache) {
-            setRequests(cache);
-            return;
-          }
+      if (cache) {
+        setRequests(cache);
+        return;
+      }
       const res = await getBorrowRequests();
       const requestsWithDetails = await Promise.all(
         res.data.map(async (req) => {
@@ -32,19 +31,16 @@ function IssueBook() {
           };
         })
       );
-
       const pending = requestsWithDetails.filter(req => req.status === "Pending");
-      cache = pending; // ✅ Cache the actual fetched+filtered data
+      cache = pending;
       setRequests(pending);
     }
-
     fetchRequests();
   }, []);
 
   const handleApprove = async (id) => {
     try {
       setLoadingIds(prev => [...prev, id]);
-      // ✅ Create transaction only when explicitly approved
       const req = requests.find(r => r._id === id);
       await addTransaction({
         memberId: req.memberId,
@@ -53,13 +49,9 @@ function IssueBook() {
         dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         status: "Issued",
       });
-
       await updateRequestStatus(id, "Approved");
-
-      // ✅ Remove from pending list (or update status)
       setRequests(prev => prev.filter(r => r._id !== id));
-      cache = requests.filter(r => r._id !== id); // ✅ Keep cache in sync
-
+      cache = requests.filter(r => r._id !== id);
     } catch (error) {
       console.error(error);
     } finally {
@@ -69,12 +61,10 @@ function IssueBook() {
 
   const handleReject = async (id) => {
     try {
-      setLoadingIds(prev => [...prev, id]); // ✅ was missing
-
+      setLoadingIds(prev => [...prev, id]);
       await updateRequestStatus(id, "Rejected");
       setRequests(prev => prev.filter(r => r._id !== id));
-      cache = requests.filter(r => r._id !== id); // ✅ Keep cache in sync
-
+      cache = requests.filter(r => r._id !== id);
     } catch (error) {
       console.error(error);
     } finally {
@@ -82,8 +72,7 @@ function IssueBook() {
     }
   };
 
-  // ... JSX unchanged
-   const ActionButtons = ({ req }) => {
+  const ActionButtons = ({ req }) => {
     const busy = loadingIds.includes(req._id);
     if (req.status !== "Pending") {
       return <span className="text-gray-400 text-xs">No Action</span>;
@@ -111,15 +100,16 @@ function IssueBook() {
       </div>
     );
   };
+
   return (
-     <div className="p-3 md:p-6">
- 
+    <div className="p-3 md:p-6">
+
       {/* Title */}
       <h1 className="text-xl md:text-2xl font-semibold mb-5 md:mb-6 text-gray-800 flex items-center gap-2">
         <BookOpen className="h-6 w-6 text-blue-600 shrink-0" />
         Borrow Requests
       </h1>
- 
+
       {/* ── DESKTOP TABLE ── */}
       <div className="hidden md:block bg-white shadow-md rounded-lg overflow-hidden border">
         <table className="w-full">
@@ -163,7 +153,7 @@ function IssueBook() {
           </tbody>
         </table>
       </div>
- 
+
       {/* ── MOBILE CARDS ── */}
       <div className="md:hidden space-y-3">
         {requests.length === 0 ? (
@@ -185,13 +175,13 @@ function IssueBook() {
                   {req.status}
                 </span>
               </div>
- 
+
               {/* Member + date */}
               <div className="text-xs text-gray-500 space-y-0.5">
                 <p>{req.memberName}</p>
                 <p>Requested: {req.requestDate || "—"}</p>
               </div>
- 
+
               {/* Actions */}
               <div className="pt-1">
                 <ActionButtons req={req} />

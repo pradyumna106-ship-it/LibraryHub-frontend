@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Sidebar from "../components/Sidebar.jsx";
 import Header from "../components/Header.jsx";
 import { notifications as notificationsData } from "../data/mockData.js";
@@ -33,7 +33,7 @@ const isActive = (path) => location.pathname === path;
     return role === "admin" ? "Admin" : "Member";
   };
 
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     try {
       const role = toBackendRole();
       const userId = localStorage.getItem("id");
@@ -42,14 +42,16 @@ const isActive = (path) => location.pathname === path;
     } catch (error) {
       console.error("Failed to load notifications:", error);
     }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await loadNotifications();
-    };
-    fetchData();
   }, []);
+  const fetchData = useCallback(async () => {
+      await loadNotifications();
+    }, []);
+    useEffect(() => {
+      const run = async () => {
+        await fetchData();
+      };
+  run();
+}, [fetchData]);
 
     useEffect(() => {
     return () => {

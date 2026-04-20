@@ -14,19 +14,20 @@ function BorrowedBooks() {
             console.log('free cache')
             return
         }
-        const res = await borrowedForOneMember(memberId);
-        console.log(res);
-        setBorrowedBooks(res.data);
-        cache[memberId] = [...borrowedBooks]
+         if (memberId) {
+          const res = await borrowedForOneMember(memberId);
+          console.log(res);
+          setBorrowedBooks(res.data);
+          cache[memberId] = [...borrowedBooks]
+         }
       }
       loadBorrowedBooks()
-    },[]);
+    },[memberId,borrowedBooks]);
   
   const handleRenew = async (transactionId) => {
     try {
       const res = await renewBook(transactionId);
       console.log(res);
-
       // ✅ Update UI instantly
       setBorrowedBooks(prev =>
         prev.map(book =>
@@ -38,7 +39,6 @@ function BorrowedBooks() {
             : book
         )
       );
-
       alert("Book renewed successfully!");
     } catch (error) {
       console.error(error);

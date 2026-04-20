@@ -17,7 +17,7 @@ function History() {
         cache[memberId] = [...historyData]
       }
       loadHistory()
-    },[]);
+    },[historyData, memberId]);
   
   return (
     <div className="p-8">
