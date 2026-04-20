@@ -145,7 +145,7 @@ function UpdateCatalogue() {
       </div>
 
       {/* Table */}
-      <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
+      <div className="hidden md:block bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
         <div className="overflow-x-auto">
           <table className="w-full">
             {/* Header */}
@@ -241,6 +241,83 @@ function UpdateCatalogue() {
             </tbody>
           </table>
         </div>
+      </div>
+
+       {/* ── MOBILE CARDS ── */}
+      <div className="md:hidden space-y-3">
+        {filteredBooks.length === 0 ? (
+          <div className="text-center py-12 text-gray-500">
+            <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-40" />
+            <p className="text-sm">No books found in catalogue</p>
+          </div>
+        ) : (
+          filteredBooks.map((book, index) => (
+            <div
+              key={book._id || index}
+              className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex gap-3"
+            >
+              {/* Book image */}
+              <div className="shrink-0">
+                {book.image ? (
+                  <img
+                    src={book.image}
+                    alt={book.title}
+                    className="h-16 w-12 rounded-lg object-cover border"
+                    onError={(e) => { e.target.src = '/placeholder.jpg'; }}
+                  />
+                ) : (
+                  <div className="h-16 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <BookOpen className="h-5 w-5 text-gray-400" />
+                  </div>
+                )}
+              </div>
+ 
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-900 text-sm truncate">{book.title || "Untitled"}</p>
+                <p className="text-xs text-gray-500 truncate mt-0.5">{book.author}</p>
+ 
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {book.category && (
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-[10px] rounded-full font-medium">
+                      {book.category}
+                    </span>
+                  )}
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    book.available === 'Yes'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {book.available ?? "-"}
+                  </span>
+                </div>
+ 
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-sm font-bold text-green-700 font-mono">
+                    ₹{book.price != null ? book.price.toLocaleString() : "N/A"}
+                  </span>
+                  <p className="text-[10px] text-gray-400 truncate max-w-[100px]">{book.publisher}</p>
+                </div>
+              </div>
+ 
+              {/* Actions */}
+              <div className="shrink-0 flex flex-col gap-2 justify-center">
+                <button
+                  onClick={() => handleEdit(book._id, book)}
+                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                >
+                  <Edit3 className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(book._id)}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

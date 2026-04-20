@@ -49,10 +49,10 @@ function MyBooks() {
   };
   
   return (
-    <div className="p-8">
+    <div className="p-3 md:p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">My Saved Books</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
         {myBooks.map(book => (
           <BookCard
             key={book._id}   // ✅ use _id

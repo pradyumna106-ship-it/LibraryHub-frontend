@@ -3,7 +3,7 @@ import { getBorrowRequests, updateRequestStatus } from "../api/borrowRequestAPI.
 import { getMemberById } from "../api/memberApi";
 import { getBookById } from "../api/bookApi";
 import { addTransaction } from "../api/transactionApi";
-
+import { BookOpen } from "lucide-react";
 // ✅ Outside component so it persists across renders
 let cache = null;
 
@@ -83,18 +83,46 @@ function IssueBook() {
   };
 
   // ... JSX unchanged
-
+   const ActionButtons = ({ req }) => {
+    const busy = loadingIds.includes(req._id);
+    if (req.status !== "Pending") {
+      return <span className="text-gray-400 text-xs">No Action</span>;
+    }
+    return (
+      <div className="flex gap-2">
+        <button
+          onClick={() => handleApprove(req._id)}
+          disabled={busy}
+          className={`px-3 py-1 rounded-lg text-xs text-white font-medium transition-colors ${
+            busy ? "bg-green-300 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
+          }`}
+        >
+          Approve
+        </button>
+        <button
+          onClick={() => handleReject(req._id)}
+          disabled={busy}
+          className={`px-3 py-1 rounded-lg text-xs text-white font-medium transition-colors ${
+            busy ? "bg-red-300 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"
+          }`}
+        >
+          Reject
+        </button>
+      </div>
+    );
+  };
   return (
-    <div className="p-6">
-
+     <div className="p-3 md:p-6">
+ 
       {/* Title */}
-      <h1 className="text-2xl font-semibold mb-6 text-gray-800">
+      <h1 className="text-xl md:text-2xl font-semibold mb-5 md:mb-6 text-gray-800 flex items-center gap-2">
+        <BookOpen className="h-6 w-6 text-blue-600 shrink-0" />
         Borrow Requests
       </h1>
-      {/* Table */}
-      <div className="bg-white shadow-md rounded-lg overflow-hidden border">
+ 
+      {/* ── DESKTOP TABLE ── */}
+      <div className="hidden md:block bg-white shadow-md rounded-lg overflow-hidden border">
         <table className="w-full">
-          {/* Header */}
           <thead className="bg-gray-800 text-white text-sm">
             <tr>
               <th className="px-4 py-3 text-left">Member</th>
@@ -104,71 +132,73 @@ function IssueBook() {
               <th className="px-4 py-3 text-left">Action</th>
             </tr>
           </thead>
-
-          {/* Body */}
           <tbody>
-            {requests.map((req,index) => (
-              <tr key={index} className="border-t hover:bg-gray-50">
-
-                <td className="px-4 py-3">{req.memberName}</td>
-                <td className="px-4 py-3">{req.bookTitle}</td>
-                <td className="px-4 py-3">{req.requestDate}</td>
-
-                {/* Status */}
-                <td className="px-4 py-3">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    req.status === "Pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : req.status === "Approved"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}>
-                    {req.status}
-                  </span>
-                </td>
-
-                {/* Actions */}
-                <td className="px-4 py-3 flex gap-2">
-                  {req.status === "Pending" && (
-                    <>
-                      <button
-                        onClick={() => handleApprove(req._id)} disabled={loadingIds.includes(req._id)}
-                        className={`px-2 py-1 rounded text-xs text-white ${
-                          loadingIds.includes(req._id)
-                            ? "bg-green-300 cursor-not-allowed"
-                            : "bg-green-500 hover:bg-green-600"
-                        }`}
-                      >
-                        Approve
-                      </button>
-
-                      <button
-                        onClick={() => handleReject(req._id)} disabled={loadingIds.includes(req._id)}
-                        className={`px-2 py-1 rounded text-xs text-white ${
-                          loadingIds.includes(req._id)
-                            ? "bg-red-300 cursor-not-allowed"
-                            : "bg-red-500 hover:bg-red-600"
-                        }`}
-                      >
-                        Reject
-                      </button>
-                    </>
-                  )}
-                  {req.status !== "Pending" && (
-                    <span className="text-gray-500 text-xs">
-                      No Action
-                    </span>
-                  )}
+            {requests.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-12 text-center text-gray-500">
+                  No Borrow Requests.
                 </td>
               </tr>
-            ))}
+            ) : (
+              requests.map((req, index) => (
+                <tr key={index} className="border-t hover:bg-gray-50">
+                  <td className="px-4 py-3">{req.memberName}</td>
+                  <td className="px-4 py-3">{req.bookTitle}</td>
+                  <td className="px-4 py-3">{req.requestDate}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      req.status === "Pending" ? "bg-yellow-100 text-yellow-800"
+                      : req.status === "Approved" ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                    }`}>
+                      {req.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <ActionButtons req={req} />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
-        {requests.length === 0 && (
-        <div className="text-center py-16 text-gray-500">
-          <p className="text-xl">No Borrow Requsts.</p>
-        </div>
-      )}
+      </div>
+ 
+      {/* ── MOBILE CARDS ── */}
+      <div className="md:hidden space-y-3">
+        {requests.length === 0 ? (
+          <div className="text-center py-12 text-gray-500">
+            <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-40" />
+            <p className="text-sm">No Borrow Requests.</p>
+          </div>
+        ) : (
+          requests.map((req, index) => (
+            <div key={index} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-2">
+              {/* Book title + status */}
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-semibold text-gray-900 text-sm leading-tight">{req.bookTitle}</p>
+                <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  req.status === "Pending" ? "bg-yellow-100 text-yellow-800"
+                  : req.status === "Approved" ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+                }`}>
+                  {req.status}
+                </span>
+              </div>
+ 
+              {/* Member + date */}
+              <div className="text-xs text-gray-500 space-y-0.5">
+                <p>{req.memberName}</p>
+                <p>Requested: {req.requestDate || "—"}</p>
+              </div>
+ 
+              {/* Actions */}
+              <div className="pt-1">
+                <ActionButtons req={req} />
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

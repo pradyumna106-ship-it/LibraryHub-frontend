@@ -122,6 +122,7 @@ const isActive = (path) => location.pathname === path;
         logo={img}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        onMenuToggle={() => setMobileSidebarOpen((prev) => !prev)}
       />
 
       {/* 🔥 BELOW HEADER */}

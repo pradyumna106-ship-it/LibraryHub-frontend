@@ -40,33 +40,39 @@ function Dashboard() {
         loadDashboard();
       }, []);
   return (
-    <div className="p-8">
+    <div className="p-6 space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-6 mb-8 max-w-[1000px]">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-[1000px]">
         {/* Borrowed Card */}
-        <div className="relative h-[150px] rounded-2xl overflow-hidden shadow-lg">
+        <div className="relative h-[150px] rounded-2xl overflow-hidden shadow-lg group hover:shadow-2xl transition-all">
           <div className="absolute inset-0 bg-gradient-to-br from-red-400 to-red-600" />
-          <div className="relative z-10 p-6 text-white">
-            <p className="text-sm mb-2">Borrowed Books</p>
-            <p className="text-5xl font-bold">{dashboardStats.borrowed}</p>
+          <div className="relative z-10 p-6 text-white h-full flex flex-col justify-between">
+            <div>
+              <p className="text-sm mb-2">Borrowed Books</p>
+              <p className="text-5xl font-bold">{dashboardStats.borrowed}</p>
+            </div>
           </div>
         </div>
 
         {/* Due Date Card */}
-        <div className="relative h-[150px] rounded-2xl overflow-hidden shadow-lg">
+        <div className="relative h-[150px] rounded-2xl overflow-hidden shadow-lg group hover:shadow-2x1 transition-all">
           <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600" />
-          <div className="relative z-10 p-6 text-white">
-            <p className="text-sm mb-2">Next Due Date</p>
-            <p className="text-lg font-semibold">{dashboardStats.dueDate}</p>
+          <div className="relative z-10 p-6 text-white h-full flex flex-col justify-between">
+            <div>
+              <p className="text-sm mb-2">Next Due Date</p>
+              <p className="text-lg font-semibold">{dashboardStats.dueDate}</p>
+            </div>
           </div>
         </div>
 
         {/* Fine Card */}
-        <div className="relative h-[150px] rounded-2xl overflow-hidden shadow-lg">
+        <div className="relative h-[150px] rounded-2xl overflow-hidden shadow-lg group hover:shadow-2x1 transition-all">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600" />
-          <div className="relative z-10 p-6 text-white">
-            <p className="text-sm mb-2">Outstanding Fines</p>
-            <p className="text-5xl font-bold">{dashboardStats.fine}</p>
+          <div className="relative z-10 p-6 text-white h-full flex flex-col justify-between">
+            <div>
+              <p className="text-sm mb-2">Outstanding Fines</p>
+              <p className="text-5xl font-bold">{dashboardStats.fine}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -112,7 +118,15 @@ function Dashboard() {
                     </button>
                   </td>
                 </tr>
-              ))}
+              ))} 
+              {(borrowedBooks.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                    No history records found
+                  </td>
+                </tr>
+              )
+              )}
             </tbody>
           </table>
         </div>
