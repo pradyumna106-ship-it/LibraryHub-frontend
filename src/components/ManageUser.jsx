@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { deleteMember, getMembers } from '../api/memberApi';
 import { useNavigate } from 'react-router';
-import { Users } from "lucide-react";
+import { Loader2, Users } from "lucide-react";
 let cache = null
 function ManageUser() {
     const [users, setUsers] = useState([]);

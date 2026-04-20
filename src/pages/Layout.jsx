@@ -45,7 +45,7 @@ const isActive = (path) => location.pathname === path;
   }, []);
   const fetchData = useCallback(async () => {
       await loadNotifications();
-    }, []);
+    }, [loadNotifications]);
     useEffect(() => {
       const run = async () => {
         await fetchData();

@@ -3,13 +3,7 @@ import { Search, Calendar, Filter, ChevronDown, MoreVertical, Download } from 'l
 import { getTransactionsHistory } from '../api/transactionApi';
 let cache = null;
 const HistoryContent = () => {
-  const [historyData,setHistoryData] = useState([
-      { id: 1, memberName: 'John Doe', stock: 'React Crash Course', issueDate: '2026-03-15', returnDate: '2026-04-12', status: 'Issued' },
-      { id: 2, memberName: 'Jane Smith', stock: 'Node.js Guide', issueDate: '2026-03-20', returnDate: '2026-04-17', status: 'Issued' },
-      { id: 3, memberName: 'Bob Wilson', stock: 'MongoDB Basics', issueDate: '2026-03-25', returnDate: '2026-04-22', status: 'Returned' },
-      { id: 4, memberName: 'Alice Brown', stock: 'Tailwind CSS', issueDate: '2026-03-28', returnDate: '2026-04-25', status: 'Overdue' },
-      { id: 5, memberName: 'Mike Davis', stock: 'Next.js Cookbook', issueDate: '2026-03-30', returnDate: null, status: 'Issued' },
-    ]);
+  const [historyData,setHistoryData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [dateFilter, setDateFilter] = useState('');
