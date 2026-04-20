@@ -6,7 +6,7 @@ import { deleteAdmin, getAdminById, updateAdmin } from "../api/adminApi";
 import { base64img } from "../utils/imagedisplay.js";
 
 let cache = {};
-const Field = ({ icon: Icon, label, field, type = "text", children, isEditing,currentProfile,inputClass,fieldClass }) => (
+const Field = ({ icon: Icon, label, field, type = "text", children, isEditing,currentProfile,inputClass,fieldClass,handleChange }) => (
     <div>
       <label className="flex items-center gap-2 text-xs md:text-sm font-medium text-gray-700 mb-1.5">
         {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
@@ -249,10 +249,10 @@ function Profile() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
 
               {/* Name */}
-              <Field icon={User} label="Full Name" field="name" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass} />
+              <Field icon={User} label="Full Name" field="name" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass} handleChange={handleChange}/>
 
               {/* Email */}
-              <Field icon={Mail} label="Email Address" field="email" type="email" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass}/>
+              <Field icon={Mail} label="Email Address" field="email" type="email" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass} handleChange={handleChange}/>
 
               {/* Role */}
               <div>
@@ -261,7 +261,7 @@ function Profile() {
               </div>
 
               {/* Phone */}
-              <Field icon={Phone} label="Phone Number" field="phone" type="tel" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass}/>
+              <Field icon={Phone} label="Phone Number" field="phone" type="tel" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass} handleChange={handleChange}/>
 
               {/* Department */}
               <div>
