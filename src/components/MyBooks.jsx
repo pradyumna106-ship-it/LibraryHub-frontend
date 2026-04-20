@@ -42,7 +42,7 @@ function MyBooks() {
           }
         };
         fetchBooks();
-      });
+      },[]);
     
   const handleBorrow = (book) => {
     alert(`Reading: ${book.title}`);
