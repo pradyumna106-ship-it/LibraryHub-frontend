@@ -42,8 +42,12 @@ export default function AdminDashboard() {
                   date: issue.issueDate
               }));
             setIssues(formated)
-            cacheIssues = Issues
-            cacheDashboard = dashboardStats
+            cacheIssues = formated
+            cacheDashboard = {
+                totalBooks: booksRes.data || 0,      // 123
+                totalMembers: membersRes.data || 0, // 456  
+                issuedBooks: issuedRes.data || 0     // 78
+                }
             }
             else {
               setIssues(cacheIssues)
@@ -58,7 +62,7 @@ export default function AdminDashboard() {
       }
     };
     fetchCounts();
-  }, []);
+  }, [Issues, dashboardStats]);
 
   const getStatusColor = (status) => {
     switch (status) {

@@ -6,7 +6,26 @@ import { deleteAdmin, getAdminById, updateAdmin } from "../api/adminApi";
 import { base64img } from "../utils/imagedisplay.js";
 
 let cache = {};
-
+const Field = ({ icon: Icon, label, field, type = "text", children }) => (
+    <div>
+      <label className="flex items-center gap-2 text-xs md:text-sm font-medium text-gray-700 mb-1.5">
+        {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
+        {label}
+      </label>
+      {children ?? (
+        isEditing ? (
+          <input
+            type={type}
+            value={currentProfile[field] || ""}
+            onChange={(e) => handleChange(field, e.target.value)}
+            className={inputClass}
+          />
+        ) : (
+          <p className={fieldClass}>{currentProfile[field] || "—"}</p>
+        )
+      )}
+    </div>
+  );
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({});
@@ -108,26 +127,6 @@ function Profile() {
   const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm";
   const fieldClass = "text-gray-900 text-sm md:text-base";
 
-  const Field = ({ icon: Icon, label, field, type = "text", children }) => (
-    <div>
-      <label className="flex items-center gap-2 text-xs md:text-sm font-medium text-gray-700 mb-1.5">
-        {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
-        {label}
-      </label>
-      {children ?? (
-        isEditing ? (
-          <input
-            type={type}
-            value={currentProfile[field] || ""}
-            onChange={(e) => handleChange(field, e.target.value)}
-            className={inputClass}
-          />
-        ) : (
-          <p className={fieldClass}>{currentProfile[field] || "—"}</p>
-        )
-      )}
-    </div>
-  );
 
   return (
     <div className="p-3 md:p-8 max-w-6xl mx-auto">

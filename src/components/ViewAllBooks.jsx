@@ -8,7 +8,20 @@ import { useOutletContext } from "react-router-dom";
 
 // ✅ Cache outside component
 let cache = null;  // simple cache, not keyed by id
-
+const SelectField = ({ value, onChange, options }) => (
+    <div className="relative flex-1 min-w-0">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none bg-[#D4ECEC] border border-[#9CB7D6] rounded px-3 py-2 pr-8 text-sm cursor-pointer hover:bg-[#c4dce0] transition-colors"
+      >
+        {options.map(opt => (
+          <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
+      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CB7D6] pointer-events-none" />
+    </div>
+  );
 function ViewAllBooks() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedAuthor, setSelectedAuthor] = useState("All");
@@ -96,20 +109,7 @@ function ViewAllBooks() {
     const res = await addBorrowRequest({ memberId: id, bookId: book._id });
     console.log(res);
   };
-  const SelectField = ({ value, onChange, options }) => (
-    <div className="relative flex-1 min-w-0">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none bg-[#D4ECEC] border border-[#9CB7D6] rounded px-3 py-2 pr-8 text-sm cursor-pointer hover:bg-[#c4dce0] transition-colors"
-      >
-        {options.map(opt => (
-          <option key={opt} value={opt}>{opt}</option>
-        ))}
-      </select>
-      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CB7D6] pointer-events-none" />
-    </div>
-  );
+  
   // ... rest of JSX unchanged
   return (
      <div className="p-3 md:p-8">
