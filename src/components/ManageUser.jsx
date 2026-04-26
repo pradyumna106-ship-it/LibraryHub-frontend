@@ -45,7 +45,7 @@ function ManageUser() {
           }
         }
         fetchBooksData();
-      }, [users]);
+      }, []);
       
     const statusStyle = (status) => {
       if (status === "Active") return "bg-green-100 text-green-800";
