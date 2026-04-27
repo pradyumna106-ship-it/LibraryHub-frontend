@@ -1,93 +1,123 @@
-import { useEffect, useState } from "react";
-import { User, Mail, Phone, MapPin, Calendar, BookOpen, DollarSign, Edit2, Save, X } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { User, Mail, Phone, MapPin, Calendar, BookOpen, DollarSign, Edit2, Save, X, Camera } from "lucide-react";
 import { updateMember, getMemberById, deleteMember } from "../api/memberApi";
 import { useNavigate } from "react-router";
 import { deleteAdmin, getAdminById, updateAdmin } from "../api/adminApi";
 import { base64img } from "../utils/imagedisplay.js";
 
 let cache = {};
-const Field = ({ icon: Icon, label, field, type = "text", children, isEditing,currentProfile,inputClass,fieldClass,handleChange }) => (
-    <div>
-      <label className="flex items-center gap-2 text-xs md:text-sm font-medium text-gray-700 mb-1.5">
-        {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
-        {label}
-      </label>
-      {children ?? (
-        isEditing ? (
-          <input
-            type={type}
-            value={currentProfile[field] || ""}
-            onChange={(e) => handleChange(field, e.target.value)}
-            className={inputClass}
-          />
-        ) : (
-          <p className={fieldClass}>{currentProfile[field] || "—"}</p>
-        )
-      )}
-    </div>
-  );
+
+// ── Field component (outside Profile, no state dependency) ──
+const Field = ({ icon: Icon, label, field, type = "text", children, isEditing, currentProfile, inputClass, fieldClass, handleChange }) => (
+  <div>
+    <label className="flex items-center gap-2 text-xs md:text-sm font-medium text-gray-700 mb-1.5">
+      {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
+      {label}
+    </label>
+    {children ?? (
+      isEditing ? (
+        <input
+          type={type}
+          value={currentProfile[field] || ""}
+          onChange={(e) => handleChange(field, e.target.value)}
+          className={inputClass}
+        />
+      ) : (
+        <p className={fieldClass}>{currentProfile[field] || "—"}</p>
+      )
+    )}
+  </div>
+);
+
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({});
   const [editedProfile, setEditedProfile] = useState({});
+  const [showCamera, setShowCamera] = useState(false);
+  const streamRef = useRef(null);
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
   const id = localStorage.getItem("id");
 
+  // ── Load profile ──
   useEffect(() => {
     const loadProfile = async () => {
-      if (!id || id === "null") {
-        console.log("No ID found, redirecting...", id);
-        return;
-      }
+      if (!id || id === "null") return;
       if (cache[id]) {
         setProfile(cache[id]);
         setEditedProfile(cache[id]);
         return;
       }
-      if (role === "member") {
-        const res = await getMemberById(id);
-        const data = res.data?.data || res.data;
-        setProfile(data);
-        setEditedProfile(data);
-        cache[id] = data;
-      } else {
-        const res = await getAdminById(id);
-        const data = res.data?.data || res.data;
-        setProfile(data);
-        setEditedProfile(data);
-        cache[id] = data;
-      }
+      const res = role === "member" ? await getMemberById(id) : await getAdminById(id);
+      const data = res.data?.data || res.data;
+      setProfile(data);
+      setEditedProfile(data);
+      cache[id] = data;
     };
     loadProfile();
-  }, [id,role]);
+  }, [id, role]);
 
+  // ── Profile field change ──
+  const handleChange = (field, value) => {
+    setEditedProfile(prev => ({ ...prev, [field]: value }));
+  };
+
+  // ── Avatar: file upload → base64 ──
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setEditedProfile(prev => ({ ...prev, avatar: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // ── Avatar: camera ──
+  const startCamera = async () => {
+    setShowCamera(true);
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    streamRef.current = stream;
+    setTimeout(() => {
+      const video = document.getElementById("profile-camera");
+      if (video) video.srcObject = stream;
+    }, 100);
+  };
+
+  const stopCamera = () => {
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+    setShowCamera(false);
+  };
+
+  const handleCapture = () => {
+    const video = document.getElementById("profile-camera");
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0);
+    const base64 = canvas.toDataURL("image/jpeg");
+    setEditedProfile(prev => ({ ...prev, avatar: base64 }));
+    stopCamera();
+  };
+
+  // ── Edit / Save / Cancel ──
   const handleEdit = () => {
     setIsEditing(true);
     setEditedProfile(profile);
   };
 
-  const departments = [
-    "Engineering", "Computer Science (CS)", "Electronics (EC)",
-    "Electronics & Communication (ECE)", "Mechanical", "Civil",
-    "MBBS", "BDS", "Pharmacy", "MBA", "B.Com", "Arts",
-  ];
-
-  const handleLogout = () => {
-    const confirmed = confirm("Are you sure you want to logout?");
-    if (!confirmed) return;
-    localStorage.clear();
-    navigate("/");
+  const handleCancel = () => {
+    setEditedProfile(profile);
+    setIsEditing(false);
+    stopCamera();
   };
 
   const handleSave = async () => {
     try {
-      let res;
-      if (role === "member") {
-        res = await updateMember(profile._id, editedProfile);
-      } else {
-        res = await updateAdmin(profile._id, editedProfile);
-      }
+      const res = role === "member"
+        ? await updateMember(profile._id, editedProfile)
+        : await updateAdmin(profile._id, editedProfile);
       const updatedData = res.data?.data || res.data;
       cache[id] = updatedData;
       setProfile(updatedData);
@@ -100,33 +130,30 @@ function Profile() {
     }
   };
 
+  const handleLogout = () => {
+    const confirmed = confirm("Are you sure you want to logout?");
+    if (!confirmed) return;
+    localStorage.clear();
+    navigate("/");
+  };
+
   const handleDelete = async () => {
     const confirmed = confirm("Are you sure you want to delete your account?");
     if (!confirmed) return;
-    if (role === "member") {
-      const res = await deleteMember(id);
-      console.log(res.data.message);
-    } else {
-      const res = await deleteAdmin(id);
-      console.log(res.data.message);
-    }
+    const res = role === "member" ? await deleteMember(id) : await deleteAdmin(id);
+    console.log(res.data.message);
   };
 
-  const handleCancel = () => {
-    setEditedProfile(profile);
-    setIsEditing(false);
-  };
-
-  const handleChange = (field, value) => {
-    setEditedProfile({ ...editedProfile, [field]: value });
-  };
+  const departments = [
+    "Engineering", "Computer Science (CS)", "Electronics (EC)",
+    "Electronics & Communication (ECE)", "Mechanical", "Civil",
+    "MBBS", "BDS", "Pharmacy", "MBA", "B.Com", "Arts",
+  ];
 
   const currentProfile = isEditing ? editedProfile : profile;
   const displayAvatar = currentProfile?.avatar || base64img(128, 128, 4);
-
   const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm";
   const fieldClass = "text-gray-900 text-sm md:text-base";
-
 
   return (
     <div className="p-3 md:p-8 max-w-6xl mx-auto">
@@ -134,45 +161,25 @@ function Profile() {
       {/* ── TOP BAR ── */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-5 md:mb-8">
         <h1 className="text-xl md:text-3xl font-bold text-gray-800">My Profile</h1>
-
-        {/* Action buttons — wrap on mobile */}
         <div className="flex flex-wrap gap-2">
           {!isEditing ? (
-            <button
-              onClick={handleEdit}
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm transition-colors"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-              <span>Edit</span>
+            <button onClick={handleEdit} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm transition-colors">
+              <Edit2 className="w-3.5 h-3.5" /><span>Edit</span>
             </button>
           ) : (
             <>
-              <button
-                onClick={handleSave}
-                className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm transition-colors"
-              >
-                <Save className="w-3.5 h-3.5" />
-                <span>Save</span>
+              <button onClick={handleSave} className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm transition-colors">
+                <Save className="w-3.5 h-3.5" /><span>Save</span>
               </button>
-              <button
-                onClick={handleCancel}
-                className="flex items-center gap-1.5 bg-gray-600 hover:bg-gray-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Cancel</span>
+              <button onClick={handleCancel} className="flex items-center gap-1.5 bg-gray-600 hover:bg-gray-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm transition-colors">
+                <X className="w-3.5 h-3.5" /><span>Cancel</span>
               </button>
             </>
           )}
-          <button
-            onClick={handleLogout}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm transition-colors"
-          >
+          <button onClick={handleLogout} className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm transition-colors">
             Logout
           </button>
-          <button
-            onClick={handleDelete}
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm transition-colors"
-          >
+          <button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md text-sm transition-colors">
             Delete
           </button>
         </div>
@@ -187,20 +194,52 @@ function Profile() {
           {/* Avatar card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <div className="flex flex-col items-center text-center">
+
+              {/* Avatar image */}
               {displayAvatar ? (
-                <img
-                  src={displayAvatar}
-                  alt="User avatar"
-                  className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover mb-3"
-                />
+                <img src={displayAvatar} alt="User avatar" className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover mb-3" />
               ) : (
                 <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-3">
                   <User className="w-10 h-10 text-gray-400" />
                 </div>
               )}
+
+              {/* Upload / Camera buttons — only when editing */}
+              {isEditing && (
+                <div className="flex gap-2 mb-3">
+                  <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs flex items-center gap-1">
+                    <Edit2 className="w-3 h-3" />
+                    Upload
+                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={startCamera}
+                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs flex items-center gap-1"
+                  >
+                    <Camera className="w-3 h-3" />
+                    Camera
+                  </button>
+                </div>
+              )}
+
+              {/* Camera viewfinder */}
+              {showCamera && (
+                <div className="w-full mb-3">
+                  <video id="profile-camera" autoPlay className="w-full rounded-lg border" />
+                  <div className="flex gap-2 mt-2 justify-center">
+                    <button type="button" onClick={handleCapture} className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs">
+                      Capture
+                    </button>
+                    <button type="button" onClick={stopCamera} className="bg-gray-500 text-white px-3 py-1.5 rounded text-xs">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <h2 className="text-lg md:text-2xl font-bold text-gray-800">{currentProfile.name}</h2>
               <p className="text-xs text-gray-400 mt-0.5 break-all">ID: {currentProfile._id}</p>
-
               {currentProfile.memberSince && (
                 <div className="flex items-center gap-1.5 text-gray-500 mt-3 text-xs">
                   <Calendar className="w-3.5 h-3.5" />
@@ -245,37 +284,25 @@ function Profile() {
           {/* Personal info card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h3 className="font-semibold text-base md:text-xl mb-5 text-gray-800">Personal Information</h3>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
 
-              {/* Name */}
-              <Field icon={User} label="Full Name" field="name" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass} handleChange={handleChange}/>
+              <Field icon={User} label="Full Name" field="name" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass} handleChange={handleChange} />
+              <Field icon={Mail} label="Email Address" field="email" type="email" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass} handleChange={handleChange} />
 
-              {/* Email */}
-              <Field icon={Mail} label="Email Address" field="email" type="email" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass} handleChange={handleChange}/>
-
-              {/* Role */}
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-700 mb-1.5 block">Role</label>
                 <p className={fieldClass}>{role || "Member"}</p>
               </div>
 
-              {/* Phone */}
-              <Field icon={Phone} label="Phone Number" field="phone" type="tel" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass} handleChange={handleChange}/>
+              <Field icon={Phone} label="Phone Number" field="phone" type="tel" isEditing={isEditing} currentProfile={currentProfile} inputClass={inputClass} fieldClass={fieldClass} handleChange={handleChange} />
 
               {/* Department */}
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-700 mb-1.5 block">Department</label>
                 {isEditing ? (
-                  <select
-                    value={currentProfile.dept || ""}
-                    onChange={(e) => handleChange("dept", e.target.value)}
-                    className={inputClass}
-                  >
+                  <select value={currentProfile.dept || ""} onChange={(e) => handleChange("dept", e.target.value)} className={inputClass}>
                     <option value="">Select Department</option>
-                    {departments.map((dept) => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
+                    {departments.map((dept) => <option key={dept} value={dept}>{dept}</option>)}
                   </select>
                 ) : (
                   <p className={fieldClass}>{currentProfile.dept || "Not Assigned"}</p>
@@ -286,11 +313,7 @@ function Profile() {
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-700 mb-1.5 block">Member Type</label>
                 {isEditing ? (
-                  <select
-                    value={currentProfile.memberType || ""}
-                    onChange={(e) => handleChange("memberType", e.target.value)}
-                    className={inputClass}
-                  >
+                  <select value={currentProfile.memberType || ""} onChange={(e) => handleChange("memberType", e.target.value)} className={inputClass}>
                     <option value="Student">Student</option>
                     <option value="Faculty">Faculty</option>
                   </select>
@@ -303,11 +326,7 @@ function Profile() {
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-700 mb-1.5 block">Status</label>
                 {isEditing ? (
-                  <select
-                    value={currentProfile.status || ""}
-                    onChange={(e) => handleChange("status", e.target.value)}
-                    className={inputClass}
-                  >
+                  <select value={currentProfile.status || ""} onChange={(e) => handleChange("status", e.target.value)} className={inputClass}>
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                   </select>
@@ -316,35 +335,23 @@ function Profile() {
                 )}
               </div>
 
-              {/* Created At */}
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-700 mb-1.5 block">Created At</label>
-                <p className={fieldClass}>
-                  {currentProfile.createdAt ? new Date(currentProfile.createdAt).toLocaleDateString() : "—"}
-                </p>
+                <p className={fieldClass}>{currentProfile.createdAt ? new Date(currentProfile.createdAt).toLocaleDateString() : "—"}</p>
               </div>
 
-              {/* Updated At */}
               <div>
                 <label className="text-xs md:text-sm font-medium text-gray-700 mb-1.5 block">Last Updated</label>
-                <p className={fieldClass}>
-                  {currentProfile.updatedAt ? new Date(currentProfile.updatedAt).toLocaleDateString() : "—"}
-                </p>
+                <p className={fieldClass}>{currentProfile.updatedAt ? new Date(currentProfile.updatedAt).toLocaleDateString() : "—"}</p>
               </div>
 
               {/* Address — full width */}
               <div className="sm:col-span-2">
                 <label className="flex items-center gap-2 text-xs md:text-sm font-medium text-gray-700 mb-1.5">
-                  <MapPin className="w-3.5 h-3.5 shrink-0" />
-                  Address
+                  <MapPin className="w-3.5 h-3.5 shrink-0" />Address
                 </label>
                 {isEditing ? (
-                  <textarea
-                    value={currentProfile.address || ""}
-                    onChange={(e) => handleChange("address", e.target.value)}
-                    rows={3}
-                    className={`${inputClass} resize-none`}
-                  />
+                  <textarea value={currentProfile.address || ""} onChange={(e) => handleChange("address", e.target.value)} rows={3} className={`${inputClass} resize-none`} />
                 ) : (
                   <p className={fieldClass}>{currentProfile.address || "—"}</p>
                 )}

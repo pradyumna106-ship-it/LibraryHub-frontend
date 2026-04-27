@@ -31,26 +31,30 @@ const SignUp = ({ isAdminAdding = false }) => {
   };
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setAvatar(file);
-      setPreview(URL.createObjectURL(file));
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result; // full base64 string e.g. "data:image/jpeg;base64,..."
+      setPreview(base64);
+      setFormData(prev => ({ ...prev, avatar: base64 })); // ✅ store in formData
+      setAvatar(null); // ✅ clear file state since we're using base64 now
+    };
+    reader.readAsDataURL(file);
   };
   const handleCapture = () => {
     const video = document.querySelector("video");
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-    // Convert to file instead of base64
-    canvas.toBlob((blob) => {
-      const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
-      setAvatar(file);
-      setPreview(URL.createObjectURL(file));
-    }, "image/jpeg");
+    canvas.getContext("2d").drawImage(video, 0, 0);
+
+    const base64 = canvas.toDataURL("image/jpeg");
+    setPreview(base64);
+    setFormData(prev => ({ ...prev, avatar: base64 })); // ✅ store in formData
+    setAvatar(null);
     setShowCamera(false);
-    stopCamera()
+    stopCamera();
   };
     const startCamera = async () => {
       setShowCamera(true);
@@ -90,36 +94,26 @@ const SignUp = ({ isAdminAdding = false }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+
     try {
-          const formPayload = new FormData();
-          Object.keys(formData).forEach(key => {
-            if (key !== "confirmPassword" && formData[key]) {
-              formPayload.append(key, formData[key]); // ✅ only non-empty
-            }
-          });
-          // ✅ send actual file
-              if (avatar) {
-                formPayload.append("avatar", avatar);
-              }
-              for (let pair of formPayload.entries()) {
-                    console.log(pair[0], pair[1]);
-                  }
-              console.table(formPayload)
-              const response = await addMember(formPayload);
-              if (response.status === 201) {
-                if (isAdminAdding) {
-                  alert("Member added successfully!");
-                  navigate(-1); // ✅ go back to wherever admin came from
-                } else {
-                  alert("Sign up successful!");
-                  navigate("/login/member"); // ✅ only for self-signup
-                }
-              }
-            } catch (error) {
-              console.error(error);
-              setErrors({ general: 'Server error' });
-            }
-          };
+      const payload = { ...formData };
+      delete payload.confirmPassword; // ✅ don't send this to backend
+
+      const response = await addMember(payload); // ✅ plain JSON, not FormData
+      if (response.status === 201) {
+        if (isAdminAdding) {
+          alert("Member added successfully!");
+          navigate(-1);
+        } else {
+          alert("Sign up successful!");
+          navigate("/login/member");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      setErrors({ general: 'Server error' });
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <button

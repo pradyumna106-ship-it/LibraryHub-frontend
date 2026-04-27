@@ -60,25 +60,30 @@ function ViewAllBooks() {
       selectedAuthor !== "All",
       showAvailableOnly,
     ].filter(Boolean).length;
+    // ✅ Separate the calls so one failure doesn't block the others
     useEffect(() => {
+      if (!id) return;
       async function fetchData() {
         try {
-          const [myBooksRes, borrowRequestRes] = await Promise.all([
-            getMyBooks(id),
-            getBorrowRequestBymemberId(id)
-          ]);
-          if (myBooksRes.status === 200) setMyBooks(myBooksRes.data || []);
-          if (borrowRequestRes.status === 200) setBorrowRequests(borrowRequestRes.data || []);
+          // Books — most important, fetch first
           if (cache) {
-            setAllBooks(cache);  // ✅ cache holds the array directly
-            return;
-          }
-          // ✅ Make sure it's always .data (the array), never the raw response
+            setAllBooks(cache);
+          } else {
             const booksRes = await getBooks();
             if (booksRes.status === 200) {
               cache = booksRes.data || [];
               safeSetAllBooks(cache);
             }
+          }
+
+          // My books
+          const myBooksRes = await getMyBooks(id).catch(() => null);
+          if (myBooksRes?.status === 200) setMyBooks(myBooksRes.data || []);
+
+          // Borrow requests — 404 is valid (means none yet), don't throw
+          const borrowRes = await getBorrowRequestBymemberId(id).catch(() => null);
+          if (borrowRes?.status === 200) setBorrowRequests(borrowRes.data || []);
+
         } catch (error) {
           console.error("Error fetching data:", error);
         }
@@ -104,10 +109,16 @@ function ViewAllBooks() {
   };
 
   const handleBorrow = async (book) => {
-    alert(`Borrowing: ${book.title}`);
-    // ✅ Use the same id, no re-declaration
+  try {
     const res = await addBorrowRequest({ memberId: id, bookId: book._id });
-    console.log(res);
+      if (res.status === 201) {
+        // ✅ optimistically add to borrowRequests so UI updates immediately
+        setBorrowRequests(prev => [...prev, res.data.request]);
+      }
+    } catch (error) {
+      console.error("Borrow error:", error);
+      alert("Failed to send borrow request.");
+    }
   };
   
   // ... rest of JSX unchanged
