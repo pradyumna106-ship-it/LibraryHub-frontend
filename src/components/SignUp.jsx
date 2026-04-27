@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { User, Mail, Phone, MapPin, BookOpen, Users, Lock } from 'lucide-react';
 import { addMember } from '../api/memberApi';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 
 const SignUp = ({ isAdminAdding = false }) => {
   const [formData, setFormData] = useState({
