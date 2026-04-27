@@ -89,9 +89,7 @@ const SignUp = () => {
   ];
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     try {
           const formPayload = new FormData();
           Object.keys(formData).forEach(key => {
@@ -99,21 +97,19 @@ const SignUp = () => {
               formPayload.append(key, formData[key]); // ✅ only non-empty
             }
           });
-
           // ✅ send actual file
-          if (avatar) {
-            formPayload.append("avatar", avatar);
-          }
+              if (avatar) {
+                formPayload.append("avatar", avatar);
+              }
               for (let pair of formPayload.entries()) {
                     console.log(pair[0], pair[1]);
                   }
+              console.table(formPayload)
               const response = await addMember(formPayload);
-
-              if (response.ok) {
+              if (response.status === 201) {
                 alert("Sign up successful!");
                 navigate("/login/member");
               }
-
             } catch (error) {
               console.error(error);
               setErrors({ general: 'Server error' });
