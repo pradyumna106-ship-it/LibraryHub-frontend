@@ -51,7 +51,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, Component: LoginType },
       { path: "login/:role", Component: LogIn },
-      { path: "signup", Component: SignUp}
+      { path: "signup", Component: <SignUp isAdminAdding={true}/>}
     ],
   },
 ]);

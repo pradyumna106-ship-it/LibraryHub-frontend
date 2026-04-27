@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
 import { User, Mail, Phone, MapPin, BookOpen, Users, Lock } from 'lucide-react';
 import { addMember } from '../api/memberApi';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
-const SignUp = () => {
+const SignUp = ({ isAdminAdding = false }) => {
   const [formData, setFormData] = useState({
     name: '',
     dept: '',
@@ -107,8 +107,13 @@ const SignUp = () => {
               console.table(formPayload)
               const response = await addMember(formPayload);
               if (response.status === 201) {
-                alert("Sign up successful!");
-                navigate("/login/member");
+                if (isAdminAdding) {
+                  alert("Member added successfully!");
+                  navigate(-1); // ✅ go back to wherever admin came from
+                } else {
+                  alert("Sign up successful!");
+                  navigate("/login/member"); // ✅ only for self-signup
+                }
               }
             } catch (error) {
               console.error(error);
