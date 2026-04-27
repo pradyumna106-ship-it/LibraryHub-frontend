@@ -84,7 +84,7 @@ function Transaction() {
       </div>
  
       {/* ── DESKTOP TABLE ── */}
-      <div className="hidden md:block bg-white shadow-md rounded-lg overflow-hidden border max-w-[1000px]">
+      <div className="hidden md:block bg-white shadow-md rounded-lg overflow-hidden border max-w-[1400px] mx-auto">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-800 text-white">
@@ -110,18 +110,18 @@ function Transaction() {
               ) : (
                 transactions.map((txn, index) => (
                   <tr key={index} className="border-t hover:bg-gray-50">
-                    <td className="px-4 py-3 text-xs text-gray-500 truncate max-w-[80px]">{txn._id}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500 truncate max-w-[80px]">{index+1}</td>
                     <td className="px-4 py-3">{txn.memberName}</td>
                     <td className="px-4 py-3">{txn.bookTitle}</td>
                     <td className="px-4 py-3">{txn.issueDate}</td>
                     <td className="px-4 py-3">{txn.dueDate}</td>
-                    <td className="px-4 py-3">{txn.returnDate}</td>
+                    <td className="px-4 py-3">{txn.returnDate || "-"}</td>
                     <td className="px-4 py-3">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyle(txn.status)}`}>
                         {txn.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3">₹{txn.fine}</td>
+                    <td className="px-4 py-3">₹{txn.fine || 0}</td>
                     <td className="px-4 py-3 flex gap-2">
                       <button className="bg-gray-500 text-white px-2 py-1 rounded text-xs">View</button>
                       {txn.status !== "Returned" && (
@@ -175,7 +175,7 @@ function Transaction() {
  
               {/* Fine + Actions */}
               <div className="flex items-center justify-between pt-1">
-                <span className="text-sm font-bold text-green-700">Fine: ₹{txn.fine ?? 0}</span>
+                <span className="text-sm font-bold text-green-700">Fine: ₹{txn.fine || 0}</span>
                 <div className="flex gap-2">
                   <button className="bg-gray-500 text-white px-3 py-1 rounded-lg text-xs">View</button>
                   {txn.status !== "Returned" && (

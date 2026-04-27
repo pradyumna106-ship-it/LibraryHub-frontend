@@ -39,9 +39,14 @@ function IssueBook() {
   }, []);
 
   const handleApprove = async (id) => {
-    try {
-      setLoadingIds(prev => [...prev, id]);
-      const req = requests.find(r => r._id === id);
+  if (loadingIds.includes(id)) return; // 🚀 prevent duplicate calls
+
+  try {
+    setLoadingIds(prev => [...prev, id]);
+
+    const req = requests.find(r => r._id === id);
+      if (!req) return; // safety check
+
       await addTransaction({
         memberId: req.memberId,
         bookId: req.bookId,
@@ -49,9 +54,12 @@ function IssueBook() {
         dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         status: "Issued",
       });
+
       await updateRequestStatus(id, "Approved");
+
       setRequests(prev => prev.filter(r => r._id !== id));
       cache = requests.filter(r => r._id !== id);
+
     } catch (error) {
       console.error(error);
     } finally {

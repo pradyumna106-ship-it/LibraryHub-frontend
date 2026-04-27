@@ -7,22 +7,26 @@ let cache = {};
 function BorrowedBooks() {
   const memberId = 	localStorage.getItem('id')
   const [borrowedBooks, setBorrowedBooks] = useState([]);
-    useEffect(() => {
-      async function loadBorrowedBooks() {
-        if (cache[memberId] && cache) {
-            setBorrowedBooks(cache[memberId])
-            console.log('free cache')
-            return
-        }
-         if (memberId) {
-          const res = await borrowedForOneMember(memberId);
-          console.log(res);
-          setBorrowedBooks(res.data);
-          cache[memberId] = [...borrowedBooks]
-         }
+   useEffect(() => {
+    async function loadBorrowedBooks() {
+      if (!memberId) return;
+      // ✅ cache check
+      if (cache[memberId]) {
+        setBorrowedBooks(cache[memberId]);
+        console.log('from cache');
+        return;
       }
-      loadBorrowedBooks()
-    },[memberId,borrowedBooks]);
+      try {
+        const res = await borrowedForOneMember(memberId);
+        setBorrowedBooks(res.data);
+        cache[memberId] = res.data; // ✅ correct
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadBorrowedBooks();
+  }, [memberId]); // ✅ fixed
+
   
   const handleRenew = async (transactionId) => {
     try {
