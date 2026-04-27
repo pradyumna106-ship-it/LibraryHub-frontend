@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   ]);
 
   useEffect(() => {
+    let isMounted = true; 
     const fetchCounts = async () => {
         try {
           if (!cacheIssues || !cacheDashboard) {
@@ -48,21 +49,27 @@ export default function AdminDashboard() {
                 totalMembers: membersRes.data || 0, // 456  
                 issuedBooks: issuedRes.data || 0     // 78
                 }
+                if (isMounted) {
+                  setIssues(cacheIssues);
+                  setDashboardStats(cacheDashboard);
+                }
             }
             else {
               setIssues(cacheIssues)
               setDashboardStats(cacheDashboard)
               console.log("free Cache")
             }
-        } catch (error) {
+            
+        }  catch (error) {
           console.error(error);
-          setError(error)
+          // Store only the message or a string
+          setError(error.message || "An unexpected error occurred"); 
         } finally {
         setLoading(false);
       }
     };
     fetchCounts();
-  }, [Issues, dashboardStats]);
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
