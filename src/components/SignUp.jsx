@@ -15,7 +15,6 @@ const SignUp = ({ isAdminAdding = false }) => {
     memberType: 'Student',
     avatar:''
   });
-  const [avatar, setAvatar] = useState(null);
   const [preview, setPreview] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
   const navigate = useNavigate()
@@ -38,7 +37,6 @@ const SignUp = ({ isAdminAdding = false }) => {
       const base64 = reader.result; // full base64 string e.g. "data:image/jpeg;base64,..."
       setPreview(base64);
       setFormData(prev => ({ ...prev, avatar: base64 })); // ✅ store in formData
-      setAvatar(null); // ✅ clear file state since we're using base64 now
     };
     reader.readAsDataURL(file);
   };
@@ -52,7 +50,6 @@ const SignUp = ({ isAdminAdding = false }) => {
     const base64 = canvas.toDataURL("image/jpeg");
     setPreview(base64);
     setFormData(prev => ({ ...prev, avatar: base64 })); // ✅ store in formData
-    setAvatar(null);
     setShowCamera(false);
     stopCamera();
   };
